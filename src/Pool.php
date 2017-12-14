@@ -27,14 +27,14 @@ class Pool implements \ArrayAccess
         return new static();
     }
 
-    public function concurrency(int $concurrency): Pool
+    public function concurrency(int $concurrency): self
     {
         $this->concurrency = $concurrency;
 
         return $this;
     }
 
-    public function maximumExecutionTime(int $maximumExecutionTime): Pool
+    public function maximumExecutionTime(int $maximumExecutionTime): self
     {
         $this->maximumExecutionTime = $maximumExecutionTime;
 
@@ -124,10 +124,10 @@ class Pool implements \ArrayAccess
                     }
 
                     $this->finished($process);
-                } else if ($processStatus == 0) {
+                } elseif ($processStatus == 0) {
                     if ($process->startTime() + $this->maximumExecutionTime < time() || pcntl_wifstopped($status)) {
                         if (! posix_kill($process->pid(), SIGKILL)) {
-                            throw new Exception("Failed to kill {$process->pid()}: " . posix_strerror(posix_get_last_error()));
+                            throw new Exception("Failed to kill {$process->pid()}: ".posix_strerror(posix_get_last_error()));
                         }
 
                         $process->triggerTimeout();
@@ -189,8 +189,6 @@ class Pool implements \ArrayAccess
     public function offsetGet($offset)
     {
         // TODO
-
-        return null;
     }
 
     public function offsetSet($offset, $value)
