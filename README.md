@@ -1,4 +1,4 @@
-# Asynchronous and parallel PHP with the PCNTL extension
+# Asynchronous and parallel PHP with PCNTL
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/async.svg?style=flat-square)](https://packagist.org/packages/spatie/async)
 [![Build Status](https://img.shields.io/travis/spatie/async/master.svg?style=flat-square)](https://travis-ci.org/spatie/async)
