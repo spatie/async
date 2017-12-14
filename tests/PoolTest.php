@@ -4,6 +4,7 @@ namespace Spatie\Async;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Spatie\Async\Tests\MyTask;
 
 class PoolTest extends TestCase
 {
@@ -94,6 +95,7 @@ class PoolTest extends TestCase
         $pool->wait();
 
         $this->assertEquals(5, $this->counter);
+        $this->assertCount(5, $pool->getFailed());
     }
 
     /** @test */
@@ -120,6 +122,7 @@ class PoolTest extends TestCase
 
         $this->assertTrue($executionTime >= 0.5);
         $this->assertEquals(5, $this->counter);
+        $this->assertCount(5, $pool->getFinished());
     }
 
     /** @test */
@@ -140,5 +143,30 @@ class PoolTest extends TestCase
         await($pool);
 
         $this->assertEquals(10, $this->counter);
+    }
+
+    /** @test */
+    public function it_can_run_tasks_bundled()
+    {
+        $pool = Pool::create()
+            ->tasksPerProcess(2);
+
+        $timeStart = microtime(true);
+
+        for ($i = 0; $i < 7; $i++) {
+            $pool[] = new MyTask(function () {
+                sleep(1);
+            });
+        }
+
+        await($pool);
+
+        $timeEnd = microtime(true);
+
+        $executionTime = $timeEnd - $timeStart;
+
+        $this->assertTrue($executionTime >= 2);
+        $this->assertTrue($executionTime < 3);
+        $this->assertCount(4, $pool->getFinished());
     }
 }

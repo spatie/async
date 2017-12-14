@@ -16,12 +16,12 @@ abstract class Process
 
     abstract public function execute();
 
-    public function internalId()
+    public function internalId(): string
     {
         return $this->internalId;
     }
 
-    public function pid()
+    public function pid(): string
     {
         return $this->pid;
     }
@@ -31,9 +31,14 @@ abstract class Process
         return $this->socket;
     }
 
-    public function startTime()
+    public function startTime(): int
     {
         return $this->startTime;
+    }
+
+    public function hasTasks(): bool
+    {
+        return count($this->tasks) > 0;
     }
 
     public function then(callable $callback): self

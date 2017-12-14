@@ -40,15 +40,19 @@ class Runtime
             ->setStartTime(time());
     }
 
-    public function handleFinishedProcess(Process $process): void
+    public function handleFinishedProcess(Process $process): bool
     {
         $output = $this->readProcessOutputFromSocket($process);
 
-        if ($output->isSuccess()) {
-            $process->triggerSuccess($output->payload());
-        } else {
+        if (!$output->isSuccess()) {
             $process->triggerError($output->payload());
+
+            return false;
         }
+
+        $process->triggerSuccess($output->payload());
+
+        return true;
     }
 
     public function handleRunningProcess(Process $process, $status): bool

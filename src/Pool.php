@@ -8,6 +8,10 @@ class Pool implements \ArrayAccess
 {
     protected $runtime;
     protected $concurrency = 20;
+    protected $tasksPerProcess = 1;
+
+    /** @var \Spatie\Async\Task[] */
+    protected $tasks = [];
 
     /** @var \Spatie\Async\Process[] */
     protected $queue = [];
@@ -38,6 +42,13 @@ class Pool implements \ArrayAccess
         return $this;
     }
 
+    public function tasksPerProcess(int $tasksPerProcess): self
+    {
+        $this->tasksPerProcess = $tasksPerProcess;
+
+        return $this;
+    }
+
     public function maximumExecutionTime(int $maximumExecutionTime): self
     {
         $this->runtime->maximumExecutionTime($maximumExecutionTime);
@@ -47,6 +58,10 @@ class Pool implements \ArrayAccess
 
     public function notify(): void
     {
+        if (count($this->tasks) >= $this->tasksPerProcess) {
+            $this->scheduleTasks($this->tasksPerProcess);
+        }
+
         if (count($this->inProgress) >= $this->concurrency) {
             return;
         }
@@ -62,8 +77,14 @@ class Pool implements \ArrayAccess
         $this->inProgress($process);
     }
 
-    public function add($process): Process
+    public function add($process): ?Process
     {
+        if ($process instanceof Task) {
+            $this->queueTask($process);
+
+            return null;
+        }
+
         if (! $process instanceof Process) {
             $process = new CallableProcess($process);
         }
@@ -82,14 +103,20 @@ class Pool implements \ArrayAccess
 
     public function wait(): void
     {
+        $this->scheduleTasks();
+
         while (count($this->inProgress)) {
             foreach ($this->inProgress as $process) {
                 $processStatus = pcntl_waitpid($process->pid(), $status, WNOHANG | WUNTRACED);
 
                 if ($processStatus == $process->pid()) {
-                    $this->runtime->handleFinishedProcess($process);
+                    $isSuccess = $this->runtime->handleFinishedProcess($process);
 
-                    $this->finished($process);
+                    if ($isSuccess) {
+                        $this->finished($process);
+                    } else {
+                        $this->failed($process);
+                    }
                 } elseif ($processStatus == 0) {
                     $isRunning = $this->runtime->handleRunningProcess($process, $status);
 
@@ -107,6 +134,13 @@ class Pool implements \ArrayAccess
 
             usleep(100000);
         }
+    }
+
+    public function queueTask(Task $task): void
+    {
+        $this->tasks[] = $task;
+
+        $this->notify();
     }
 
     public function queue(Process $process): void
@@ -161,5 +195,39 @@ class Pool implements \ArrayAccess
     public function offsetUnset($offset)
     {
         // TODO
+    }
+
+    protected function scheduleTasks(?int $amount = null): void
+    {
+        $amount = $amount ?? count($this->tasks);
+
+        $tasksToRun = array_splice($this->tasks, 0, $amount);
+
+        if (! count($tasksToRun)) {
+            return;
+        }
+
+        $this->add(new CallableProcess(function () use ($tasksToRun) {
+            /** @var \Spatie\Async\Task $task */
+            foreach ($tasksToRun as $task) {
+                $task->execute();
+            }
+        }));
+    }
+
+    /**
+     * @return \Spatie\Async\Process[]
+     */
+    public function getFinished(): array
+    {
+        return $this->finished;
+    }
+
+    /**
+     * @return \Spatie\Async\Process[]
+     */
+    public function getFailed(): array
+    {
+        return $this->failed;
     }
 }
