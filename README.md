@@ -95,6 +95,28 @@ $pool
 ;
 ```
 
+### Functional API
+
+Instead of using methods on the `$pool` object, you may also use these helper functions.
+
+```php
+use Spatie\Async\Process;
+
+$pool = Pool::create();
+
+for ($i = 0; $i < 5; $i++) {
+    $pool[] = async(function () {
+        usleep(random_int(10, 1000));
+
+        return 2;
+    })->then(function (int $output) {
+        $this->counter += $output;
+    });
+}
+
+await($pool);
+```
+
 ### Testing
 
 ``` bash

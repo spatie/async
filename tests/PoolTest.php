@@ -61,7 +61,7 @@ class PoolTest extends TestCase
     public function it_can_handle_timeout()
     {
         $pool = Pool::create()
-            ->maximumExecutionTime(0.1);
+            ->maximumExecutionTime(0.001);
 
         for ($i = 0; $i < 5; $i++) {
             $pool->add(function () {
@@ -120,5 +120,25 @@ class PoolTest extends TestCase
 
         $this->assertTrue($executionTime >= 0.5);
         $this->assertEquals(5, $this->counter);
+    }
+
+    /** @test */
+    public function it_works_with_helper_functions()
+    {
+        $pool = Pool::create();
+
+        for ($i = 0; $i < 5; $i++) {
+            $pool[] = async(function () {
+                usleep(random_int(10, 1000));
+
+                return 2;
+            })->then(function (int $output) {
+                $this->counter += $output;
+            });
+        }
+
+        await($pool);
+
+        $this->assertEquals(10, $this->counter);
     }
 }

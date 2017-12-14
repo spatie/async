@@ -5,7 +5,7 @@ namespace Spatie\Async;
 use Exception;
 use Throwable;
 
-class Pool
+class Pool implements \ArrayAccess
 {
     protected $concurrency = 20;
     protected $maximumExecutionTime = 300;
@@ -49,7 +49,7 @@ class Pool
 
         $process = array_shift($this->queue);
 
-        if (!$process) {
+        if (! $process) {
             return;
         }
 
@@ -60,7 +60,7 @@ class Pool
 
     public function add($process): Process
     {
-        if (!$process instanceof Process) {
+        if (! $process instanceof Process) {
             $process = new CallableProcess($process);
         }
 
@@ -125,7 +125,7 @@ class Pool
                     $this->finished($process);
                 } else if ($processStatus == 0) {
                     if ($process->startTime() + $this->maximumExecutionTime < time() || pcntl_wifstopped($status)) {
-                        if (!posix_kill($process->pid(), SIGKILL)) {
+                        if (! posix_kill($process->pid(), SIGKILL)) {
                             throw new Exception("Failed to kill {$process->pid()}: " . posix_strerror(posix_get_last_error()));
                         }
 
@@ -138,7 +138,7 @@ class Pool
                 }
             }
 
-            if (!count($this->inProgress)) {
+            if (! count($this->inProgress)) {
                 break;
             }
 
@@ -176,5 +176,29 @@ class Pool
         $this->failed[$process->pid()] = $process;
 
         $this->notify();
+    }
+
+    public function offsetExists($offset)
+    {
+        // TODO
+
+        return false;
+    }
+
+    public function offsetGet($offset)
+    {
+        // TODO
+
+        return null;
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        $this->add($value);
+    }
+
+    public function offsetUnset($offset)
+    {
+        // TODO
     }
 }
