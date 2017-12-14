@@ -48,8 +48,7 @@ use Spatie\Async\Pool;
 
 $pool = Pool::create()
     ->concurrency(20) // The maximum amount of processes which can run simultaneously.
-    ->maximumExecutionTime(200) // The maximum amount of time a process may take to finish in seconds.
-;
+    ->maximumExecutionTime(200); // The maximum amount of time a process may take to finish in seconds.
 ```
 
 ### Processes
