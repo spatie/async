@@ -2,6 +2,7 @@
 
 namespace Spatie\Async;
 
+// TODO: Move to separate namespace
 class ProcessOutput
 {
     protected $payload;

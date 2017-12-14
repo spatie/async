@@ -5,6 +5,7 @@ namespace Spatie\Async;
 use InvalidArgumentException;
 use Throwable;
 
+// TODO: Move to separate namespace
 class ErrorProcessOutput extends ProcessOutput
 {
     /**

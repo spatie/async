@@ -71,6 +71,7 @@ class Pool
         return $process;
     }
 
+    // TODO: Refactor to use a ProcessRuntime class
     public function run(Process $process): Process
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $sockets);
@@ -101,6 +102,8 @@ class Pool
             ->setStartTime(time());
     }
 
+    // TODO: Refactor to use a ProcessRuntime class
+    // TODO: Split further into helper methods
     public function wait(): void
     {
         while (count($this->inProgress)) {

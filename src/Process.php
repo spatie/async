@@ -2,6 +2,7 @@
 
 namespace Spatie\Async;
 
+// TODO: Optional description property for easier debugging?
 abstract class Process
 {
     protected $internalId;
