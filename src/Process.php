@@ -14,7 +14,7 @@ abstract class Process
     protected $errorCallback;
     protected $timeoutCallback;
 
-    public abstract function execute();
+    abstract public function execute();
 
     public function internalId()
     {
@@ -36,21 +36,21 @@ abstract class Process
         return $this->startTime;
     }
 
-    public function then(callable $callback): Process
+    public function then(callable $callback): self
     {
         $this->successCallback = $callback;
 
         return $this;
     }
 
-    public function catch(callable $callback): Process
+    public function catch(callable $callback): self
     {
         $this->errorCallback = $callback;
 
         return $this;
     }
 
-    public function timeout(callable $callback): Process
+    public function timeout(callable $callback): self
     {
         $this->timeoutCallback = $callback;
 
@@ -60,7 +60,7 @@ abstract class Process
     public function triggerSuccess($output = null)
     {
         if (! $this->successCallback) {
-            return null;
+            return;
         }
 
         return call_user_func_array($this->successCallback, [$output]);
@@ -69,7 +69,7 @@ abstract class Process
     public function triggerError($output = null)
     {
         if (! $this->errorCallback) {
-            return null;
+            return;
         }
 
         return call_user_func_array($this->errorCallback, [$output]);
@@ -78,34 +78,34 @@ abstract class Process
     public function triggerTimeout($output = null)
     {
         if (! $this->timeoutCallback) {
-            return null;
+            return;
         }
 
         return call_user_func_array($this->timeoutCallback, [$output]);
     }
 
-    public function setInternalId($internalId): Process
+    public function setInternalId($internalId): self
     {
         $this->internalId = $internalId;
 
         return $this;
     }
 
-    public function setPid($pid): Process
+    public function setPid($pid): self
     {
         $this->pid = $pid;
 
         return $this;
     }
 
-    public function setSocket($socket): Process
+    public function setSocket($socket): self
     {
         $this->socket = $socket;
 
         return $this;
     }
 
-    public function setStartTime($startTime): Process
+    public function setStartTime($startTime): self
     {
         $this->startTime = $startTime;
 

@@ -2,8 +2,8 @@
 
 namespace Spatie\Async;
 
-use InvalidArgumentException;
 use Throwable;
+use InvalidArgumentException;
 
 // TODO: Move to separate namespace
 class ErrorProcessOutput extends ProcessOutput
@@ -15,7 +15,7 @@ class ErrorProcessOutput extends ProcessOutput
      */
     public static function create($payload)
     {
-        if (!$payload instanceof Throwable) {
+        if (! $payload instanceof Throwable) {
             throw new InvalidArgumentException('ErrorProcessOutput only accepts Throwables.');
         }
 
