@@ -111,6 +111,7 @@ class Pool implements \ArrayAccess
                 $processStatus = pcntl_waitpid($process->pid(), $status, WNOHANG | WUNTRACED);
 
                 if ($processStatus == $process->pid()) {
+                    // TODO: length should not be hard coded
                     /** @var \Spatie\Async\ProcessOutput $output */
                     $output = unserialize(socket_read($process->socket(), 4096));
 
