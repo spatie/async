@@ -7,7 +7,6 @@ use Exception;
 class Pool implements \ArrayAccess
 {
     protected $runtime;
-
     protected $concurrency = 20;
 
     /** @var \Spatie\Async\Process[] */
