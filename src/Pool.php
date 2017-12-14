@@ -3,6 +3,7 @@
 namespace Spatie\Async;
 
 use Exception;
+use Throwable;
 
 class Pool
 {
@@ -18,9 +19,12 @@ class Pool
     /** @var \Spatie\Async\Process[] */
     protected $failed = [];
 
-    public static function create(): Pool
+    /**
+     * @return static
+     */
+    public static function create()
     {
-        return new self();
+        return new static();
     }
 
     public function concurrency(int $concurrency): Pool
@@ -74,9 +78,18 @@ class Pool
         [$parentSocket, $childSocket] = $sockets;
 
         if (($pid = pcntl_fork()) == 0) {
+            try {
+                $output = ProcessOutput::create($process->execute())->setSuccess();
+            } catch (Throwable $e) {
+                $output = ErrorProcessOutput::create($e);
+            }
+
             socket_close($childSocket);
-            socket_write($parentSocket, serialize($process->execute()));
+
+            socket_write($parentSocket, $output->serialize());
+
             socket_close($parentSocket);
+
             exit;
         }
 
@@ -95,11 +108,16 @@ class Pool
                 $processStatus = pcntl_waitpid($process->pid(), $status, WNOHANG | WUNTRACED);
 
                 if ($processStatus == $process->pid()) {
+                    /** @var \Spatie\Async\ProcessOutput $output */
                     $output = unserialize(socket_read($process->socket(), 4096));
 
                     socket_close($process->socket());
 
-                    $process->triggerSuccess($output);
+                    if ($output->isSuccess()) {
+                        $process->triggerSuccess($output->payload());
+                    } else {
+                        $process->triggerError($output->payload());
+                    }
 
                     $this->finished($process);
                 } else if ($processStatus == 0) {
