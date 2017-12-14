@@ -3,6 +3,8 @@
 namespace Spatie\Async;
 
 use Exception;
+use Spatie\Async\Output\ErrorProcessOutput;
+use Spatie\Async\Output\ProcessOutput;
 use Throwable;
 
 class Pool implements \ArrayAccess
@@ -112,7 +114,7 @@ class Pool implements \ArrayAccess
 
                 if ($processStatus == $process->pid()) {
                     // TODO: length should not be hard coded
-                    /** @var \Spatie\Async\ProcessOutput $output */
+                    /** @var \Spatie\Async\Output\ProcessOutput $output */
                     $output = unserialize(socket_read($process->socket(), 4096));
 
                     socket_close($process->socket());

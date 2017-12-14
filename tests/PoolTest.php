@@ -61,7 +61,7 @@ class PoolTest extends TestCase
     public function it_can_handle_timeout()
     {
         $pool = Pool::create()
-            ->maximumExecutionTime(0.001);
+            ->maximumExecutionTime(0);
 
         for ($i = 0; $i < 5; $i++) {
             $pool->add(function () {

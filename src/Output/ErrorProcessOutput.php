@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Async;
+namespace Spatie\Async\Output;
 
 use Throwable;
 use InvalidArgumentException;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Async;
+namespace Spatie\Async\Output;
 
 // TODO: Move to separate namespace
 class ProcessOutput
