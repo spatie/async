@@ -97,7 +97,7 @@ $pool
 
 ### Functional API
 
-Instead of using methods on the `$pool` object, you may also use `async` and `await` helper functions.
+Instead of using methods on the `$pool` object, you may also use the `async` and `await` helper functions.
 
 ```php
 use Spatie\Async\Process;
