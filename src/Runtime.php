@@ -25,7 +25,9 @@ class Runtime
         [$parentSocket, $childSocket] = $sockets;
 
         if (($pid = pcntl_fork()) == 0) {
-            $this->executeChildProcess($parentSocket, $childSocket, $process);
+            socket_close($childSocket);
+
+            $this->executeChildProcess($parentSocket, $process);
 
             exit;
         }
@@ -64,15 +66,13 @@ class Runtime
         return true;
     }
 
-    protected function executeChildProcess($parentSocket, $childSocket, Process $process): void
+    protected function executeChildProcess($parentSocket, Process $process): void
     {
         try {
             $output = ProcessOutput::create($process->execute())->setSuccess();
         } catch (Throwable $e) {
             $output = ErrorProcessOutput::create($e);
         }
-
-        socket_close($childSocket);
 
         socket_write($parentSocket, $output->serialize());
 
