@@ -1,13 +1,13 @@
 <?php
 
-use Spatie\Async\CallableProcess;
 use Spatie\Async\Pool;
 use Spatie\Async\Process;
+use Spatie\Async\CallableProcess;
 
 if (! function_exists('async')) {
     function async($process): Process
     {
-        if (!$process instanceof Process) {
+        if (! $process instanceof Process) {
             $process = new CallableProcess($process);
         }
 
