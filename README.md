@@ -158,7 +158,7 @@ Once a process is executed, we'll serialize its output and send it via a socket 
 who cna handle it further in the while loop we spoke about earlier.
 
 When a process throws an exception or fails, we can also catch that output and send it via the socket to the parent.
-That's how you can  
+That's how you can also listen for unhandled exceptions thrown in a child process, and handle them yourself.  
 
 ## Testing
 
