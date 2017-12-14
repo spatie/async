@@ -6,7 +6,8 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/spatie/async.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/async)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/async.svg?style=flat-square)](https://packagist.org/packages/spatie/async)
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
+This library provides a small and easy wrapper around PHP's PCNTL extension. 
+It allows for running difference processes in parallel, with an easy-to-use API.
 
 ## Installation
 
@@ -17,6 +18,22 @@ composer require spatie/async
 ```
 
 ## Usage
+
+```php
+$pool = Pool::create();
+
+foreach ($things as $thing) {
+    $pool->add(function () use ($thing) {
+        // Do a thing
+    })->then(function ($output) {
+        // Handle success
+    })->catch(function (Exception $e) {
+        // Handle exception
+    });
+}
+
+$pool->wait();
+```
 
 ### Testing
 
