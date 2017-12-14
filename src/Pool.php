@@ -3,14 +3,12 @@
 namespace Spatie\Async;
 
 use Exception;
-use Spatie\Async\Output\ErrorProcessOutput;
-use Spatie\Async\Output\ProcessOutput;
-use Throwable;
 
 class Pool implements \ArrayAccess
 {
+    protected $runtime;
+
     protected $concurrency = 20;
-    protected $maximumExecutionTime = 300;
 
     /** @var \Spatie\Async\Process[] */
     protected $queue = [];
@@ -20,6 +18,11 @@ class Pool implements \ArrayAccess
     protected $finished = [];
     /** @var \Spatie\Async\Process[] */
     protected $failed = [];
+
+    public function __construct()
+    {
+        $this->runtime = new Runtime();
+    }
 
     /**
      * @return static
@@ -38,7 +41,7 @@ class Pool implements \ArrayAccess
 
     public function maximumExecutionTime(int $maximumExecutionTime): self
     {
-        $this->maximumExecutionTime = $maximumExecutionTime;
+        $this->runtime->maximumExecutionTime($maximumExecutionTime);
 
         return $this;
     }
@@ -73,39 +76,11 @@ class Pool implements \ArrayAccess
         return $process;
     }
 
-    // TODO: Refactor to use a ProcessRuntime class
     public function run(Process $process): Process
     {
-        socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $sockets);
-
-        [$parentSocket, $childSocket] = $sockets;
-
-        if (($pid = pcntl_fork()) == 0) {
-            try {
-                $output = ProcessOutput::create($process->execute())->setSuccess();
-            } catch (Throwable $e) {
-                $output = ErrorProcessOutput::create($e);
-            }
-
-            socket_close($childSocket);
-
-            socket_write($parentSocket, $output->serialize());
-
-            socket_close($parentSocket);
-
-            exit;
-        }
-
-        socket_close($parentSocket);
-
-        return $process
-            ->setPid($pid)
-            ->setSocket($childSocket)
-            ->setStartTime(time());
+        return $this->runtime->start($process);
     }
 
-    // TODO: Refactor to use a ProcessRuntime class
-    // TODO: Split further into helper methods
     public function wait(): void
     {
         while (count($this->inProgress)) {
@@ -113,27 +88,13 @@ class Pool implements \ArrayAccess
                 $processStatus = pcntl_waitpid($process->pid(), $status, WNOHANG | WUNTRACED);
 
                 if ($processStatus == $process->pid()) {
-                    // TODO: length should not be hard coded
-                    /** @var \Spatie\Async\Output\ProcessOutput $output */
-                    $output = unserialize(socket_read($process->socket(), 4096));
-
-                    socket_close($process->socket());
-
-                    if ($output->isSuccess()) {
-                        $process->triggerSuccess($output->payload());
-                    } else {
-                        $process->triggerError($output->payload());
-                    }
+                    $this->runtime->handleFinishedProcess($process);
 
                     $this->finished($process);
                 } elseif ($processStatus == 0) {
-                    if ($process->startTime() + $this->maximumExecutionTime < time() || pcntl_wifstopped($status)) {
-                        if (! posix_kill($process->pid(), SIGKILL)) {
-                            throw new Exception("Failed to kill {$process->pid()}: ".posix_strerror(posix_get_last_error()));
-                        }
+                    $isRunning = $this->runtime->handleRunningProcess($process, $status);
 
-                        $process->triggerTimeout();
-
+                    if (!$isRunning) {
                         $this->failed($process);
                     }
                 } else {
