@@ -20,6 +20,8 @@ composer require spatie/async
 ## Usage
 
 ```php
+use Spatie\Async\Pool;
+
 $pool = Pool::create();
 
 foreach ($things as $thing) {
@@ -33,6 +35,64 @@ foreach ($things as $thing) {
 }
 
 $pool->wait();
+```
+
+### Pool configuration
+
+You're free to create as many pools as you want, each pool has its own queue of processes it will handle.
+
+A pool is configurable by the developer:
+
+```php
+use Spatie\Async\Pool;
+
+$pool = Pool::create()
+    ->concurrency(20) // The maximum amount of processes which can run simultaneously.
+    ->maximumExecutionTime(200) // The maximum amount of time a process may take to finish in seconds.
+;
+```
+
+### Processes
+
+You can just add closures to the pool, but in some cases you want a class to represent a process.
+
+```php
+use Spatie\Async\Process;
+
+class MyProcess extends Process
+{
+    public function __construct()
+    {
+        // You can add your own dependencies.
+    }
+
+    public function execute() 
+    {
+        // You can do whatever you like in here.
+    }
+}
+```
+
+### Event listeners
+
+When adding a process or a callable to a pool, you'll get an instance of `Process` returned.
+You can add the following event hooks on a process.
+
+```php
+$pool
+    ->add(function () {
+        // ...
+    })
+    ->then(function ($output) {
+        // On success, `$output` is returned by the process or callable you passed to the queue.
+    })
+    ->error(function ($e) {
+        // When an exception is thrown from within a process, it's caught and passed here.
+    })
+    ->timeout(function () {
+        // A process took too long to finish.
+    })
+;
 ```
 
 ### Testing
