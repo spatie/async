@@ -35,8 +35,8 @@ class PoolTest extends TestCase
 
         $executionTime = $endTime - $startTime;
 
-        $this->assertTrue($executionTime >= 0.1);
-        $this->assertTrue($executionTime < 0.2);
+        $this->assertTrue($executionTime >= 0.1, "Execution time was {$executionTime}, expected more than 0.1.");
+        $this->assertTrue($executionTime < 0.2, "Execution time was {$executionTime}, expected less than 0.2.");
     }
 
     /** @test */
@@ -48,12 +48,12 @@ class PoolTest extends TestCase
             $pool->add(function () {
                 return 2;
             })->then(function (int $output) {
-                $this->counter += $output;
+                OutputResult::$success += $output;
             });
         }
 
         $pool->wait();
-
+dd(OutputResult::$success);
         $this->assertEquals(10, $this->counter);
     }
 
@@ -168,4 +168,8 @@ class PoolTest extends TestCase
         $this->assertTrue($executionTime < 3);
         $this->assertCount(4, $pool->getFinished());
     }
+}
+
+class OutputResult {
+    public static $success = 0;
 }

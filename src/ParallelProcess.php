@@ -29,6 +29,7 @@ class ParallelProcess
     public function start(): self
     {
         $this->process->start();
+
         $this->inputStream->close();
 
         return $this;

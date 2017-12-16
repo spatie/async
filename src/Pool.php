@@ -79,7 +79,6 @@ class Pool implements ArrayAccess
         while (count($this->inProgress)) {
             foreach ($this->inProgress as $process) {
                 if ($process->isRunning()) {
-                    dump($process->output());
                     continue;
                 }
 
@@ -93,7 +92,7 @@ class Pool implements ArrayAccess
             }
 
             if (count($this->inProgress)) {
-                usleep(100000);
+                usleep(10000);
             }
         }
     }

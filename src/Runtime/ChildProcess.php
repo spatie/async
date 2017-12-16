@@ -28,16 +28,14 @@ if (!$serializedClosure) {
 
 require_once $autoloader;
 
-$serializer = new SuperClosure\Serializer();
+if ($serializedClosure) {
+    $serializer = new SuperClosure\Serializer();
 
-$closure = $serializer->unserialize($serializedClosure);
-
-try {
-    $output = serialize($closure());
-
-    echo $output;
-
-    exit(0);
-} catch (Throwable $e) {
-    exit(1);
+    $closure = $serializer->unserialize($serializedClosure);
+} else {
+    $closure = function () {
+        return 'hi';
+    };
 }
+
+fputs(STDOUT, serialize($closure()));
