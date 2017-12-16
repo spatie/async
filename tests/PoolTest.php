@@ -4,7 +4,6 @@ namespace Spatie\Async;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Spatie\Async\Tests\MyTask;
 
 class PoolTest extends TestCase
 {
@@ -67,7 +66,7 @@ class PoolTest extends TestCase
         for ($i = 0; $i < 5; $i++) {
             $pool->add(function () {
                 sleep(1);
-            })->timeout(function () {
+            })->then(function() {}, function () {
                 $this->counter += 1;
             });
         }
@@ -85,7 +84,7 @@ class PoolTest extends TestCase
         for ($i = 0; $i < 5; $i++) {
             $pool->add(function () {
                 throw new Exception('test');
-            })->catch(function (Exception $e) {
+            })->then(function () {}, function (Exception $e) {
                 $this->assertEquals('test', $e->getMessage());
 
                 $this->counter += 1;

@@ -1,17 +1,12 @@
 <?php
 
 use Spatie\Async\Pool;
-use Spatie\Async\Process;
-use Spatie\Async\CallableProcess;
+use Spatie\Async\Runtime\ParentRuntime;
 
 if (! function_exists('async')) {
-    function async($process): Process
+    function async(callable $callable): \GuzzleHttp\Promise\Promise
     {
-        if (! $process instanceof Process) {
-            $process = new CallableProcess($process);
-        }
-
-        return $process;
+        return ParentRuntime::createChildProcess($callable)->promise();
     }
 }
 

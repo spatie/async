@@ -2,30 +2,24 @@
 
 namespace Spatie\Async;
 
-use Exception;
+use ArrayAccess;
+use GuzzleHttp\Promise\Promise;
+use Spatie\Async\Runtime\ParentRuntime;
 
-class Pool implements \ArrayAccess
+class Pool implements ArrayAccess
 {
-    protected $runtime;
     protected $concurrency = 20;
     protected $tasksPerProcess = 1;
+    protected $maximumExecutionTime = 300;
 
-    /** @var \Spatie\Async\Task[] */
-    protected $tasks = [];
-
-    /** @var \Spatie\Async\Process[] */
+    /** @var \Spatie\Async\ParallelProcess[] */
     protected $queue = [];
-    /** @var \Spatie\Async\Process[] */
+    /** @var \Spatie\Async\ParallelProcess[] */
     protected $inProgress = [];
-    /** @var \Spatie\Async\Process[] */
+    /** @var \Spatie\Async\ParallelProcess[] */
     protected $finished = [];
-    /** @var \Spatie\Async\Process[] */
+    /** @var \Spatie\Async\ParallelProcess[] */
     protected $failed = [];
-
-    public function __construct()
-    {
-        $this->runtime = new Runtime();
-    }
 
     /**
      * @return static
@@ -51,17 +45,13 @@ class Pool implements \ArrayAccess
 
     public function maximumExecutionTime(int $maximumExecutionTime): self
     {
-        $this->runtime->maximumExecutionTime($maximumExecutionTime);
+        $this->maximumExecutionTime = $maximumExecutionTime;
 
         return $this;
     }
 
     public function notify(): void
     {
-        if (count($this->tasks) >= $this->tasksPerProcess) {
-            $this->scheduleTasks($this->tasksPerProcess);
-        }
-
         if (count($this->inProgress) >= $this->concurrency) {
             return;
         }
@@ -72,105 +62,78 @@ class Pool implements \ArrayAccess
             return;
         }
 
-        $process = $this->run($process);
-
-        $this->inProgress($process);
+        $this->putInProgress($process);
     }
 
-    public function add($process): ?Process
+    public function add(callable $callable): Promise
     {
-        if ($process instanceof Task) {
-            $this->queueTask($process);
+        $process = ParentRuntime::createChildProcess($callable);
 
-            return null;
-        }
+        $this->putInQueue($process);
 
-        if (! $process instanceof Process) {
-            $process = new CallableProcess($process);
-        }
-
-        $process->setInternalId(uniqid(getmypid()));
-
-        $this->queue($process);
-
-        return $process;
-    }
-
-    public function run(Process $process): Process
-    {
-        return $this->runtime->start($process);
+        return $process->promise();
     }
 
     public function wait(): void
     {
-        $this->scheduleTasks();
-
         while (count($this->inProgress)) {
             foreach ($this->inProgress as $process) {
-                $processStatus = pcntl_waitpid($process->pid(), $status, WNOHANG | WUNTRACED);
-
-                if ($processStatus == $process->pid()) {
-                    $isSuccess = $this->runtime->handleFinishedProcess($process);
-
-                    if ($isSuccess) {
-                        $this->finished($process);
-                    } else {
-                        $this->failed($process);
-                    }
-                } elseif ($processStatus == 0) {
-                    $isRunning = $this->runtime->handleRunningProcess($process, $status);
-
-                    if (!$isRunning) {
-                        $this->failed($process);
-                    }
-                } else {
-                    throw new Exception("Could not reliably manage process {$process->pid()}");
+                if ($process->isRunning()) {
+                    dump($process->output());
+                    continue;
                 }
+
+                if (!$process->isSuccessful()) {
+                    $this->markAsFailed($process);
+
+                    continue;
+                }
+
+                $this->markAsFinished($process);
             }
 
-            if (! count($this->inProgress)) {
-                break;
+            if (count($this->inProgress)) {
+                usleep(100000);
             }
-
-            usleep(100000);
         }
     }
 
-    public function queueTask(Task $task): void
-    {
-        $this->tasks[] = $task;
-
-        $this->notify();
-    }
-
-    public function queue(Process $process): void
+    public function putInQueue(ParallelProcess $process): void
     {
         $this->queue[$process->internalId()] = $process;
 
         $this->notify();
     }
 
-    public function inProgress(Process $process): void
+    public function putInProgress(ParallelProcess $process): void
     {
+        $process->start();
+
+        $process->process()->wait();
+
         unset($this->queue[$process->internalId()]);
 
-        $this->inProgress[$process->pid()] = $process;
+        $this->inProgress[$process->internalId()] = $process;
     }
 
-    public function finished(Process $process): void
+    public function markAsFinished(ParallelProcess $process): void
     {
-        unset($this->inProgress[$process->pid()]);
+        $process->promise()->resolve($process->output());
 
-        $this->finished[$process->pid()] = $process;
+        unset($this->inProgress[$process->internalId()]);
+
+        $this->finished[$process->internalId()] = $process;
 
         $this->notify();
     }
 
-    public function failed(Process $process): void
+    public function markAsFailed(ParallelProcess $process): void
     {
-        unset($this->inProgress[$process->pid()]);
+        $process->promise()->reject($process->errorOutput());
 
-        $this->failed[$process->pid()] = $process;
+        unset($this->inProgress[$process->internalId()]);
+
+        $this->failed[$process->internalId()] = $process;
 
         $this->notify();
     }
@@ -197,26 +160,8 @@ class Pool implements \ArrayAccess
         // TODO
     }
 
-    protected function scheduleTasks(?int $amount = null): void
-    {
-        $amount = $amount ?? count($this->tasks);
-
-        $tasksToRun = array_splice($this->tasks, 0, $amount);
-
-        if (! count($tasksToRun)) {
-            return;
-        }
-
-        $this->add(new CallableProcess(function () use ($tasksToRun) {
-            /** @var \Spatie\Async\Task $task */
-            foreach ($tasksToRun as $task) {
-                $task->execute();
-            }
-        }));
-    }
-
     /**
-     * @return \Spatie\Async\Process[]
+     * @return \Spatie\Async\ParallelProcess[]
      */
     public function getFinished(): array
     {
@@ -224,7 +169,7 @@ class Pool implements \ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process[]
+     * @return \Spatie\Async\ParallelProcess[]
      */
     public function getFailed(): array
     {
