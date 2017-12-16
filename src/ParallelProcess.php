@@ -2,7 +2,7 @@
 
 namespace Spatie\Async;
 
-use GuzzleHttp\Promise\Promise;
+use Spatie\Async\Output\SerializableException;
 use Symfony\Component\Process\InputStream;
 use Symfony\Component\Process\Process;
 
@@ -10,20 +10,43 @@ class ParallelProcess
 {
     protected $process;
     protected $inputStream;
-    protected $promise;
-    protected $internalId;
+    protected $id;
+
+    protected $successCallbacks = [];
+    protected $errorCallbacks = [];
+    protected $timeoutCallbacks = [];
 
     public function __construct(Process $process, InputStream $inputStream)
     {
         $this->process = $process;
         $this->inputStream = $inputStream;
-        $this->promise = new Promise();
-        $this->internalId = uniqid(getmypid());
+        $this->id = uniqid(getmypid());
     }
 
     public static function create(Process $process, InputStream $inputStream): self
     {
         return new self($process, $inputStream);
+    }
+
+    public function then(callable $callback): self
+    {
+        $this->successCallbacks[] = $callback;
+
+        return $this;
+    }
+
+    public function catch(callable $callback): self
+    {
+        $this->errorCallbacks[] = $callback;
+
+        return $this;
+    }
+
+    public function timeout(callable $callback): self
+    {
+        $this->timeoutCallbacks[] = $callback;
+
+        return $this;
     }
 
     public function start(): self
@@ -57,7 +80,7 @@ class ParallelProcess
 
     public function errorOutput()
     {
-        return $this->process->getErrorOutput();
+        return unserialize($this->process->getErrorOutput());
     }
 
     public function process(): Process
@@ -65,18 +88,37 @@ class ParallelProcess
         return $this->process;
     }
 
-    public function promise(): Promise
+    public function id(): string
     {
-        return $this->promise;
+        return $this->id;
     }
 
-    public function internalId(): string
+    public function triggerSuccess()
     {
-        return $this->internalId;
+        $output = $this->output();
+
+        foreach ($this->successCallbacks as $callback) {
+            call_user_func_array($callback, [$output]);
+        }
     }
 
-    public function pid(): ?string
+    public function triggerError()
     {
-        return $this->process->getPid();
+        $output = $this->errorOutput();
+
+        if ($output instanceof SerializableException) {
+            $output = $output->asThrowable();
+        }
+
+        foreach ($this->errorCallbacks as $callback) {
+            call_user_func_array($callback, [$output]);
+        }
+    }
+
+    public function triggerTimeout()
+    {
+        foreach ($this->timeoutCallbacks as $callback) {
+            call_user_func_array($callback, []);
+        }
     }
 }

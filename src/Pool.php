@@ -3,14 +3,14 @@
 namespace Spatie\Async;
 
 use ArrayAccess;
-use GuzzleHttp\Promise\Promise;
 use Spatie\Async\Runtime\ParentRuntime;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 
 class Pool implements ArrayAccess
 {
     protected $concurrency = 20;
     protected $tasksPerProcess = 1;
-    protected $maximumExecutionTime = 300;
+    protected $timeout = 300;
 
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $queue = [];
@@ -43,9 +43,9 @@ class Pool implements ArrayAccess
         return $this;
     }
 
-    public function maximumExecutionTime(int $maximumExecutionTime): self
+    public function timeout(int $timeout): self
     {
-        $this->maximumExecutionTime = $maximumExecutionTime;
+        $this->timeout = $timeout;
 
         return $this;
     }
@@ -65,13 +65,13 @@ class Pool implements ArrayAccess
         $this->putInProgress($process);
     }
 
-    public function add(callable $callable): Promise
+    public function add(callable $callable): ParallelProcess
     {
         $process = ParentRuntime::createChildProcess($callable);
 
         $this->putInQueue($process);
 
-        return $process->promise();
+        return $process;
     }
 
     public function wait(): void
@@ -99,40 +99,51 @@ class Pool implements ArrayAccess
 
     public function putInQueue(ParallelProcess $process): void
     {
-        $this->queue[$process->internalId()] = $process;
+        $this->queue[$process->id()] = $process;
 
         $this->notify();
     }
 
     public function putInProgress(ParallelProcess $process): void
     {
+        $process->process()->setTimeout($this->timeout);
+
         $process->start();
 
-        $process->process()->wait();
+        unset($this->queue[$process->id()]);
 
-        unset($this->queue[$process->internalId()]);
-
-        $this->inProgress[$process->internalId()] = $process;
+        $this->inProgress[$process->id()] = $process;
     }
 
     public function markAsFinished(ParallelProcess $process): void
     {
-        $process->promise()->resolve($process->output());
+        $process->triggerSuccess();
 
-        unset($this->inProgress[$process->internalId()]);
+        unset($this->inProgress[$process->id()]);
 
-        $this->finished[$process->internalId()] = $process;
+        $this->finished[$process->id()] = $process;
+
+        $this->notify();
+    }
+
+    public function markAsTimeout(ParallelProcess $process): void
+    {
+        $process->triggerTimeout();
+
+        unset($this->inProgress[$process->id()]);
+
+        $this->failed[$process->id()] = $process;
 
         $this->notify();
     }
 
     public function markAsFailed(ParallelProcess $process): void
     {
-        $process->promise()->reject($process->errorOutput());
+        $process->triggerError();
 
-        unset($this->inProgress[$process->internalId()]);
+        unset($this->inProgress[$process->id()]);
 
-        $this->failed[$process->internalId()] = $process;
+        $this->failed[$process->id()] = $process;
 
         $this->notify();
     }

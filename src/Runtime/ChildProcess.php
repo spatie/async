@@ -28,14 +28,21 @@ if (!$serializedClosure) {
 
 require_once $autoloader;
 
-if ($serializedClosure) {
-    $serializer = new SuperClosure\Serializer();
+$serializer = new SuperClosure\Serializer();
 
-    $closure = $serializer->unserialize($serializedClosure);
-} else {
-    $closure = function () {
-        return 'hi';
-    };
+$closure = $serializer->unserialize($serializedClosure);
+
+try {
+    $output = call_user_func($closure);
+
+    fputs(STDOUT, serialize($output));
+
+    exit(0);
+} catch (Throwable $e) {
+    $output = new \Spatie\Async\Output\SerializableException($e);
+
+    fputs(STDERR, serialize($output));
+
+    exit(1);
 }
 
-fputs(STDOUT, serialize($closure()));

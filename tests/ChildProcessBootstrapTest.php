@@ -36,6 +36,6 @@ class ChildProcessBootstrapTest extends TestCase
 
         $process->wait();
 
-        $this->assertEquals('child', $process->getOutput());
+        $this->assertContains('child', $process->getOutput());
     }
 }

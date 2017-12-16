@@ -7,13 +7,9 @@ use PHPUnit\Framework\TestCase;
 
 class PoolTest extends TestCase
 {
-    protected $counter = 0;
-
     protected function setUp()
     {
         parent::setUp();
-
-        $this->counter = 0;
     }
 
     /** @test */
@@ -35,7 +31,6 @@ class PoolTest extends TestCase
 
         $executionTime = $endTime - $startTime;
 
-        $this->assertTrue($executionTime >= 0.1, "Execution time was {$executionTime}, expected more than 0.1.");
         $this->assertTrue($executionTime < 0.2, "Execution time was {$executionTime}, expected less than 0.2.");
     }
 
@@ -44,36 +39,40 @@ class PoolTest extends TestCase
     {
         $pool = Pool::create();
 
+        $counter = 0;
+
         for ($i = 0; $i < 5; $i++) {
             $pool->add(function () {
                 return 2;
-            })->then(function (int $output) {
-                OutputResult::$success += $output;
+            })->then(function (int $output) use (&$counter) {
+                $counter += $output;
             });
         }
 
         $pool->wait();
-dd(OutputResult::$success);
-        $this->assertEquals(10, $this->counter);
+
+        $this->assertEquals(10, $counter);
     }
 
     /** @test */
     public function it_can_handle_timeout()
     {
         $pool = Pool::create()
-            ->maximumExecutionTime(0);
+            ->timeout(1);
+
+        $counter = 0;
 
         for ($i = 0; $i < 5; $i++) {
             $pool->add(function () {
-                sleep(1);
-            })->then(function() {}, function () {
-                $this->counter += 1;
+                sleep(2);
+            })->timeout(function () use (&$counter) {
+                $counter += 1;
             });
         }
 
         $pool->wait();
 
-        $this->assertEquals(5, $this->counter);
+        $this->assertEquals(5, $counter);
     }
 
     /** @test */
@@ -84,16 +83,13 @@ dd(OutputResult::$success);
         for ($i = 0; $i < 5; $i++) {
             $pool->add(function () {
                 throw new Exception('test');
-            })->then(function () {}, function (Exception $e) {
+            })->catch(function (Exception $e) {
                 $this->assertEquals('test', $e->getMessage());
-
-                $this->counter += 1;
             });
         }
 
         $pool->wait();
 
-        $this->assertEquals(5, $this->counter);
         $this->assertCount(5, $pool->getFailed());
     }
 
@@ -108,8 +104,6 @@ dd(OutputResult::$success);
         for ($i = 0; $i < 5; $i++) {
             $pool->add(function () {
                 usleep(1000);
-            })->then(function () {
-                $this->counter += 1;
             });
         }
 
@@ -120,7 +114,6 @@ dd(OutputResult::$success);
         $executionTime = $endTime - $startTime;
 
         $this->assertTrue($executionTime >= 0.5);
-        $this->assertEquals(5, $this->counter);
         $this->assertCount(5, $pool->getFinished());
     }
 
@@ -129,47 +122,45 @@ dd(OutputResult::$success);
     {
         $pool = Pool::create();
 
+        $counter = 0;
+
         for ($i = 0; $i < 5; $i++) {
             $pool[] = async(function () {
                 usleep(random_int(10, 1000));
 
                 return 2;
-            })->then(function (int $output) {
-                $this->counter += $output;
+            })->then(function (int $output) use (&$counter) {
+                $counter += $output;
             });
         }
 
         await($pool);
 
-        $this->assertEquals(10, $this->counter);
+        $this->assertEquals(10, $counter);
     }
 
-    /** @test */
-    public function it_can_run_tasks_bundled()
-    {
-        $pool = Pool::create()
-            ->tasksPerProcess(2);
-
-        $timeStart = microtime(true);
-
-        for ($i = 0; $i < 7; $i++) {
-            $pool[] = new MyTask(function () {
-                sleep(1);
-            });
-        }
-
-        await($pool);
-
-        $timeEnd = microtime(true);
-
-        $executionTime = $timeEnd - $timeStart;
-
-        $this->assertTrue($executionTime >= 2);
-        $this->assertTrue($executionTime < 3);
-        $this->assertCount(4, $pool->getFinished());
-    }
-}
-
-class OutputResult {
-    public static $success = 0;
+//    /** @test */
+//    public function it_can_run_tasks_bundled()
+//    {
+//        $pool = Pool::create()
+//            ->tasksPerProcess(2);
+//
+//        $timeStart = microtime(true);
+//
+//        for ($i = 0; $i < 7; $i++) {
+//            $pool[] = new MyTask(function () {
+//                sleep(1);
+//            });
+//        }
+//
+//        await($pool);
+//
+//        $timeEnd = microtime(true);
+//
+//        $executionTime = $timeEnd - $timeStart;
+//
+//        $this->assertTrue($executionTime >= 2);
+//        $this->assertTrue($executionTime < 3);
+//        $this->assertCount(4, $pool->getFinished());
+//    }
 }
