@@ -4,9 +4,9 @@ use Spatie\Async\Pool;
 use Spatie\Async\Runtime\ParentRuntime;
 
 if (! function_exists('async')) {
-    function async(callable $callable): \GuzzleHttp\Promise\Promise
+    function async(callable $callable): \Spatie\Async\ParallelProcess
     {
-        return ParentRuntime::createChildProcess($callable)->promise();
+        return ParentRuntime::createChildProcess($callable);
     }
 }
 

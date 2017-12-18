@@ -65,9 +65,11 @@ class Pool implements ArrayAccess
         $this->putInProgress($process);
     }
 
-    public function add(callable $callable): ParallelProcess
+    public function add($process): ParallelProcess
     {
-        $process = ParentRuntime::createChildProcess($callable);
+        if (!$process instanceof ParallelProcess) {
+            $process = ParentRuntime::createChildProcess($process);
+        }
 
         $this->putInQueue($process);
 

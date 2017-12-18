@@ -113,7 +113,7 @@ class PoolTest extends TestCase
 
         $executionTime = $endTime - $startTime;
 
-        $this->assertTrue($executionTime >= 0.5);
+        $this->assertTrue($executionTime >= 0.2, "Execution time was {$executionTime}, expected more than 0.2.");
         $this->assertCount(5, $pool->getFinished());
     }
 
@@ -139,28 +139,28 @@ class PoolTest extends TestCase
         $this->assertEquals(10, $counter);
     }
 
-//    /** @test */
-//    public function it_can_run_tasks_bundled()
-//    {
-//        $pool = Pool::create()
-//            ->tasksPerProcess(2);
-//
-//        $timeStart = microtime(true);
-//
-//        for ($i = 0; $i < 7; $i++) {
-//            $pool[] = new MyTask(function () {
-//                sleep(1);
-//            });
-//        }
-//
-//        await($pool);
-//
-//        $timeEnd = microtime(true);
-//
-//        $executionTime = $timeEnd - $timeStart;
-//
-//        $this->assertTrue($executionTime >= 2);
-//        $this->assertTrue($executionTime < 3);
-//        $this->assertCount(4, $pool->getFinished());
-//    }
+    /** @test */
+    public function it_can_run_tasks_bundled()
+    {
+        $pool = Pool::create()
+            ->tasksPerProcess(2);
+
+        $timeStart = microtime(true);
+
+        for ($i = 0; $i < 7; $i++) {
+            $pool[] = new MyTask(function () {
+                sleep(1);
+            });
+        }
+
+        await($pool);
+
+        $timeEnd = microtime(true);
+
+        $executionTime = $timeEnd - $timeStart;
+
+        $this->assertTrue($executionTime >= 2);
+        $this->assertTrue($executionTime < 3);
+        $this->assertCount(4, $pool->getFinished());
+    }
 }
