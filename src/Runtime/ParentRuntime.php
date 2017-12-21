@@ -25,7 +25,7 @@ class ParentRuntime
         });
 
         self::$autoloader = reset($existingAutoloaderFiles);
-        self::$childProcessScript = __DIR__ . '/ChildProcess.php';
+        self::$childProcessScript = __DIR__ . '/ChildRuntime.php';
         self::$serializer = new Serializer();
 
         self::$isInitialised = true;

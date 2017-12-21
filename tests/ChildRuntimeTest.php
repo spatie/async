@@ -6,12 +6,12 @@ use PHPUnit\Framework\TestCase;
 use SuperClosure\Serializer;
 use Symfony\Component\Process\Process;
 
-class ChildProcessBootstrapTest extends TestCase
+class ChildRuntimeTest extends TestCase
 {
     /** @test */
     public function it_can_run()
     {
-        $bootstrap = __DIR__ . '/../src/Runtime/ChildProcess.php';
+        $bootstrap = __DIR__ . '/../src/Runtime/ChildRuntime.php';
 
         $autoloader = __DIR__ . '/../vendor/autoload.php';
 
