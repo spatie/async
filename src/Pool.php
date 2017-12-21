@@ -4,6 +4,7 @@ namespace Spatie\Async;
 
 use ArrayAccess;
 use Spatie\Async\Runtime\ParentRuntime;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 
 class Pool implements ArrayAccess
 {
@@ -104,6 +105,14 @@ class Pool implements ArrayAccess
         });
 
         while ($this->inProgress) {
+            foreach ($this->inProgress as $process) {
+                try {
+                    $process->process()->checkTimeout();
+                } catch (ProcessTimedOutException $e) {
+                    $this->markAsTimeout($process);
+                }
+            }
+
             if (! $this->inProgress) {
                 break;
             }
