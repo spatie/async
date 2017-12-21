@@ -4,8 +4,6 @@ namespace Spatie\Async;
 
 use ArrayAccess;
 use Spatie\Async\Runtime\ParentRuntime;
-use Symfony\Component\Process\Exception\ProcessTimedOutException;
-use Symfony\Component\Process\Process;
 
 class Pool implements ArrayAccess
 {
