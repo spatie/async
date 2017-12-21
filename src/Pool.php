@@ -83,13 +83,25 @@ class Pool implements ArrayAccess
 
         pcntl_signal(SIGCHLD, function ($signo, $status) {
             while (true) {
-                $pid = pcntl_waitpid(-1, $status, WNOHANG | WUNTRACED);
+                $pid = pcntl_waitpid(-1, $processState, WNOHANG | WUNTRACED);
 
                 if ($pid <= 0) {
                     break;
                 }
 
-                $this->markAsFinished($this->inProgress[$pid]);
+                $process = $this->inProgress[$pid] ?? null;
+
+                if (!$process) {
+                    continue;
+                }
+
+                if ($status['status'] === 0) {
+                    $this->markAsFinished($process);
+
+                    continue;
+                }
+
+                $this->markAsFailed($process);
             }
         });
 

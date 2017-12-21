@@ -4,7 +4,6 @@ namespace Spatie\Async\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SuperClosure\Serializer;
-use Symfony\Component\Process\InputStream;
 use Symfony\Component\Process\Process;
 
 class ChildProcessBootstrapTest extends TestCase
@@ -18,21 +17,13 @@ class ChildProcessBootstrapTest extends TestCase
 
         $serializer = new Serializer();
 
-        $serializedClosure = $serializer->serialize(function () {
+        $serializedClosure = base64_encode($serializer->serialize(function () {
             echo 'child';
-        });
+        }));
 
-        $input = new InputStream();
-        $input->write($autoloader);
-        $input->write("\r\n");
-        $input->write($serializedClosure);
-
-        $process = new Process("php {$bootstrap}");
-        $process->setInput($input);
+        $process = new Process("php {$bootstrap} {$autoloader} {$serializedClosure}");
 
         $process->start();
-
-        $input->close();
 
         $process->wait();
 

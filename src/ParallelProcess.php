@@ -15,6 +15,9 @@ class ParallelProcess
     protected $errorCallbacks = [];
     protected $timeoutCallbacks = [];
 
+    protected $output;
+    protected $errorOutput;
+
     public function __construct(Process $process)
     {
         $this->process = $process;
@@ -73,12 +76,20 @@ class ParallelProcess
 
     public function output()
     {
-        return unserialize($this->process->getOutput());
+        if (!$this->output) {
+            $this->output = unserialize($this->process->getOutput());
+        }
+
+        return $this->output;
     }
 
     public function errorOutput()
     {
-        return unserialize($this->process->getErrorOutput());
+        if (!$this->errorOutput) {
+            $this->errorOutput = unserialize($this->process->getErrorOutput());
+        }
+
+        return $this->errorOutput;
     }
 
     public function process(): Process
