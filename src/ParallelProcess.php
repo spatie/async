@@ -10,7 +10,6 @@ class ParallelProcess
     protected $process;
     protected $id;
     protected $pid;
-    protected $startTime;
 
     protected $successCallbacks = [];
     protected $errorCallbacks = [];
@@ -53,8 +52,6 @@ class ParallelProcess
 
     public function start(): self
     {
-        $this->startTime = microtime(true);
-
         $this->process->start();
 
         $this->pid = $this->process->getPid();
