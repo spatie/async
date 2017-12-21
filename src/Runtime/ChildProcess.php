@@ -1,19 +1,8 @@
 <?php
 
 try {
-    $stdin = fopen('php://stdin', 'r');
-    $input = '';
-
-    while (!feof($stdin)) {
-        $input .= fgets($stdin);
-    }
-
-    fclose($stdin);
-
-    $args = explode("\r\n", $input);
-
-    $autoloader = $args[0] ?? null;
-    $serializedClosure = $args[1] ?? null;
+    $autoloader = $argv[1];
+    $serializedClosure = base64_decode($argv[2]);
 
     if (!$autoloader) {
         throw new InvalidArgumentException('No autoloader provided in child process.');

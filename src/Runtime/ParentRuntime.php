@@ -31,25 +31,19 @@ class ParentRuntime
         self::$isInitialised = true;
     }
 
-    public static function createChildProcess(callable $closure): ParallelProcess
+    public static function createChildProcess(callable $callable): ParallelProcess
     {
         if (!self::$isInitialised) {
             self::init();
         }
 
-        $serializedClosure = self::$serializer->serialize($closure);
+        $process = new Process(implode(' ', [
+            'exec php',
+            self::$childProcessScript,
+            self::$autoloader,
+            base64_encode(self::$serializer->serialize($callable))
+        ]));
 
-        $input = new InputStream();
-
-        $input->write(self::$autoloader);
-        $input->write("\r\n");
-        $input->write($serializedClosure);
-
-        $process = new Process('php ' . self::$childProcessScript);
-        $process->setInput($input);
-
-        $input->close();
-
-        return ParallelProcess::create($process, $input);
+        return ParallelProcess::create($process);
     }
 }

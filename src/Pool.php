@@ -5,6 +5,7 @@ namespace Spatie\Async;
 use ArrayAccess;
 use Spatie\Async\Runtime\ParentRuntime;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
+use Symfony\Component\Process\Process;
 
 class Pool implements ArrayAccess
 {
@@ -78,24 +79,26 @@ class Pool implements ArrayAccess
 
     public function wait(): void
     {
-        while (count($this->inProgress)) {
-            foreach ($this->inProgress as $process) {
-                if ($process->isRunning()) {
-                    continue;
+        pcntl_async_signals(true);
+
+        pcntl_signal(SIGCHLD, function ($signo, $status) {
+            while (true) {
+                $pid = pcntl_waitpid(-1, $status, WNOHANG | WUNTRACED);
+
+                if ($pid <= 0) {
+                    break;
                 }
 
-                if (!$process->isSuccessful()) {
-                    $this->markAsFailed($process);
+                $this->markAsFinished($this->inProgress[$pid]);
+            }
+        });
 
-                    continue;
-                }
-
-                $this->markAsFinished($process);
+        while ($this->inProgress) {
+            if (! $this->inProgress) {
+                break;
             }
 
-            if (count($this->inProgress)) {
-                usleep(10000);
-            }
+            usleep(50000);
         }
     }
 
@@ -114,16 +117,16 @@ class Pool implements ArrayAccess
 
         unset($this->queue[$process->id()]);
 
-        $this->inProgress[$process->id()] = $process;
+        $this->inProgress[$process->pid()] = $process;
     }
 
     public function markAsFinished(ParallelProcess $process): void
     {
         $process->triggerSuccess();
 
-        unset($this->inProgress[$process->id()]);
+        unset($this->inProgress[$process->pid()]);
 
-        $this->finished[$process->id()] = $process;
+        $this->finished[$process->pid()] = $process;
 
         $this->notify();
     }
@@ -132,9 +135,9 @@ class Pool implements ArrayAccess
     {
         $process->triggerTimeout();
 
-        unset($this->inProgress[$process->id()]);
+        unset($this->inProgress[$process->pid()]);
 
-        $this->failed[$process->id()] = $process;
+        $this->failed[$process->pid()] = $process;
 
         $this->notify();
     }
@@ -143,9 +146,9 @@ class Pool implements ArrayAccess
     {
         $process->triggerError();
 
-        unset($this->inProgress[$process->id()]);
+        unset($this->inProgress[$process->pid()]);
 
-        $this->failed[$process->id()] = $process;
+        $this->failed[$process->pid()] = $process;
 
         $this->notify();
     }

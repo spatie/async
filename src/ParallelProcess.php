@@ -3,29 +3,27 @@
 namespace Spatie\Async;
 
 use Spatie\Async\Output\SerializableException;
-use Symfony\Component\Process\InputStream;
 use Symfony\Component\Process\Process;
 
 class ParallelProcess
 {
     protected $process;
-    protected $inputStream;
     protected $id;
+    protected $pid;
 
     protected $successCallbacks = [];
     protected $errorCallbacks = [];
     protected $timeoutCallbacks = [];
 
-    public function __construct(Process $process, InputStream $inputStream)
+    public function __construct(Process $process)
     {
         $this->process = $process;
-        $this->inputStream = $inputStream;
         $this->id = uniqid(getmypid());
     }
 
-    public static function create(Process $process, InputStream $inputStream): self
+    public static function create(Process $process): self
     {
-        return new self($process, $inputStream);
+        return new self($process);
     }
 
     public function then(callable $callback): self
@@ -53,7 +51,7 @@ class ParallelProcess
     {
         $this->process->start();
 
-        $this->inputStream->close();
+        $this->pid = $this->process->getPid();
 
         return $this;
     }
@@ -91,6 +89,11 @@ class ParallelProcess
     public function id(): string
     {
         return $this->id;
+    }
+
+    public function pid(): ?string
+    {
+        return $this->pid;
     }
 
     public function triggerSuccess()
