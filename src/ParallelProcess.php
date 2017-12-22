@@ -97,13 +97,11 @@ class ParallelProcess
         if (! $this->errorOutput) {
             $processOutput = $this->process->getErrorOutput();
 
-            $errorOutput = @unserialize(base64_decode($processOutput));
+            $this->errorOutput = @unserialize(base64_decode($processOutput));
 
-            if (! $errorOutput) {
-                $errorOutput = $processOutput;
+            if (! $this->errorOutput) {
+                $this->errorOutput = $processOutput;
             }
-
-            $this->errorOutput = $errorOutput;
         }
 
         return $this->errorOutput;
