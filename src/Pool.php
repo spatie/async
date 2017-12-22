@@ -21,6 +21,8 @@ class Pool implements ArrayAccess
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $failed = [];
 
+    protected $results = [];
+
     public function __construct()
     {
         $this->registerListener();
@@ -81,7 +83,7 @@ class Pool implements ArrayAccess
         return $process;
     }
 
-    public function wait(): void
+    public function wait(): array
     {
         while ($this->inProgress) {
             foreach ($this->inProgress as $process) {
@@ -98,6 +100,8 @@ class Pool implements ArrayAccess
 
             usleep(50000);
         }
+
+        return $this->results;
     }
 
     public function putInQueue(ParallelProcess $process): void
@@ -120,7 +124,7 @@ class Pool implements ArrayAccess
 
     public function markAsFinished(ParallelProcess $process): void
     {
-        $process->triggerSuccess();
+        $this->results[] = $process->triggerSuccess();
 
         unset($this->inProgress[$process->pid()]);
 

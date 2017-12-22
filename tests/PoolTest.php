@@ -163,4 +163,24 @@ class PoolTest extends TestCase
         $this->assertInstanceOf(MyClass::class, $result);
         $this->assertTrue($result->property);
     }
+
+    /** @test */
+    public function it_returns_all_the_output_as_an_array()
+    {
+        $pool = Pool::create();
+
+        /** @var MyClass $result */
+        $result = null;
+
+        for ($i = 0; $i < 5; $i++) {
+            $pool[] = async(function () {
+                return 2;
+            });
+        }
+
+        $result = await($pool);
+
+        $this->assertCount(5, $result);
+        $this->assertEquals(10, array_sum($result));
+    }
 };

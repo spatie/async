@@ -129,6 +129,8 @@ class ParallelProcess
         foreach ($this->successCallbacks as $callback) {
             call_user_func_array($callback, [$output]);
         }
+
+        return $output;
     }
 
     public function triggerError()

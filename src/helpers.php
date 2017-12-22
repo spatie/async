@@ -11,8 +11,8 @@ if (! function_exists('async')) {
 }
 
 if (! function_exists('await')) {
-    function await(Pool $pool): void
+    function await(Pool $pool): array
     {
-        $pool->wait();
+        return $pool->wait();
     }
 }
