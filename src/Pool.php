@@ -74,7 +74,7 @@ class Pool implements ArrayAccess
 
     public function add($process): ParallelProcess
     {
-        if (!$process instanceof ParallelProcess) {
+        if (! $process instanceof ParallelProcess) {
             $process = ParentRuntime::createChildProcess($process);
         }
 
@@ -207,7 +207,7 @@ class Pool implements ArrayAccess
 
                 $process = $this->inProgress[$pid] ?? null;
 
-                if (!$process) {
+                if (! $process) {
                     continue;
                 }
 

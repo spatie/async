@@ -3,10 +3,9 @@
 namespace Spatie\Async;
 
 use Error;
-use PHPUnit\Runner\Exception;
-use Spatie\Async\Output\SerializableException;
-use Symfony\Component\Process\Process;
 use Throwable;
+use Symfony\Component\Process\Process;
+use Spatie\Async\Output\SerializableException;
 
 class ParallelProcess
 {
