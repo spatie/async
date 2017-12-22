@@ -21,6 +21,11 @@ class Pool implements ArrayAccess
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $failed = [];
 
+    public function __construct()
+    {
+        $this->registerListener();
+    }
+
     /**
      * @return static
      */
@@ -78,32 +83,6 @@ class Pool implements ArrayAccess
 
     public function wait(): void
     {
-        pcntl_async_signals(true);
-
-        pcntl_signal(SIGCHLD, function ($signo, $status) {
-            while (true) {
-                $pid = pcntl_waitpid(-1, $processState, WNOHANG | WUNTRACED);
-
-                if ($pid <= 0) {
-                    break;
-                }
-
-                $process = $this->inProgress[$pid] ?? null;
-
-                if (!$process) {
-                    continue;
-                }
-
-                if ($status['status'] === 0) {
-                    $this->markAsFinished($process);
-
-                    continue;
-                }
-
-                $this->markAsFailed($process);
-            }
-        });
-
         while ($this->inProgress) {
             foreach ($this->inProgress as $process) {
                 try {
@@ -208,5 +187,34 @@ class Pool implements ArrayAccess
     public function getFailed(): array
     {
         return $this->failed;
+    }
+
+    protected function registerListener(): void
+    {
+        pcntl_async_signals(true);
+
+        pcntl_signal(SIGCHLD, function ($signo, $status) {
+            while (true) {
+                $pid = pcntl_waitpid(-1, $processState, WNOHANG | WUNTRACED);
+
+                if ($pid <= 0) {
+                    break;
+                }
+
+                $process = $this->inProgress[$pid] ?? null;
+
+                if (!$process) {
+                    continue;
+                }
+
+                if ($status['status'] === 0) {
+                    $this->markAsFinished($process);
+
+                    continue;
+                }
+
+                $this->markAsFailed($process);
+            }
+        });
     }
 }
