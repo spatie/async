@@ -183,4 +183,4 @@ class PoolTest extends TestCase
         $this->assertCount(5, $result);
         $this->assertEquals(10, array_sum($result));
     }
-};
+}
