@@ -80,7 +80,7 @@ class ParallelProcess
     public function output()
     {
         if (! $this->output) {
-            $processOutput = $this->process->getErrorOutput();
+            $processOutput = $this->process->getOutput();
 
             $this->output = @unserialize(base64_decode($processOutput));
 
