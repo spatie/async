@@ -98,13 +98,13 @@ class PoolTest extends TestCase
     public function it_can_handle_a_maximum_of_concurrent_processes()
     {
         $pool = Pool::create()
-            ->concurrency(1);
+            ->concurrency(2);
 
         $startTime = microtime(true);
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 3; $i++) {
             $pool->add(function () {
-                usleep(1000);
+                sleep(1);
             });
         }
 
@@ -114,8 +114,8 @@ class PoolTest extends TestCase
 
         $executionTime = $endTime - $startTime;
 
-        $this->assertTrue($executionTime >= 0.2, "Execution time was {$executionTime}, expected more than 0.2.");
-        $this->assertCount(5, $pool->getFinished());
+        $this->assertTrue($executionTime >= 2, "Execution time was {$executionTime}, expected more than 0.2.");
+        $this->assertCount(3, $pool->getFinished());
     }
 
     /** @test */
