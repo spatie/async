@@ -4,6 +4,7 @@ namespace Spatie\Async;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Spatie\Async\Tests\MyClass;
 
 class PoolTest extends TestCase
 {
@@ -138,4 +139,24 @@ class PoolTest extends TestCase
 
         $this->assertEquals(10, $counter);
     }
-}
+
+    /** @test */
+    public function it_can_use_a_class_from_the_parent_process()
+    {
+        $pool = Pool::create();
+
+        $result = null;
+
+        $pool[] = async(function () {
+            $class = new MyClass();
+
+            return $class;
+        })->then(function (MyClass $class) use (&$result) {
+            $result = $class;
+        });
+
+        await($pool);
+
+        $this->assertInstanceOf(MyClass::class, $result);
+    }
+};
