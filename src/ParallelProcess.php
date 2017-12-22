@@ -3,7 +3,6 @@
 namespace Spatie\Async;
 
 use Error;
-use PHPUnit\Runner\Exception;
 use Spatie\Async\Output\SerializableException;
 use Symfony\Component\Process\Process;
 use Throwable;
@@ -20,6 +19,8 @@ class ParallelProcess
 
     protected $output;
     protected $errorOutput;
+
+    protected $startTime;
 
     public function __construct(Process $process)
     {
@@ -55,9 +56,18 @@ class ParallelProcess
 
     public function start(): self
     {
+        $this->startTime = microtime(true);
+
         $this->process->start();
 
         $this->pid = $this->process->getPid();
+
+        return $this;
+    }
+
+    public function stop(): self
+    {
+        $this->process->stop(10, SIGKILL);
 
         return $this;
     }
@@ -120,6 +130,11 @@ class ParallelProcess
     public function pid(): ?string
     {
         return $this->pid;
+    }
+
+    public function executionTime(): float
+    {
+        return microtime(true) - $this->startTime;
     }
 
     public function triggerSuccess()

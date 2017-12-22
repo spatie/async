@@ -87,9 +87,7 @@ class Pool implements ArrayAccess
     {
         while ($this->inProgress) {
             foreach ($this->inProgress as $process) {
-                try {
-                    $process->process()->checkTimeout();
-                } catch (ProcessTimedOutException $e) {
+                if ($process->executionTime() > $this->timeout) {
                     $this->markAsTimeout($process);
                 }
             }
