@@ -18,13 +18,11 @@ try {
 
     require_once $autoloader;
 
-    $serializer = new SuperClosure\Serializer();
-
-    $closure = $serializer->unserialize($serializedClosure);
+    $closure = Opis\Closure\unserialize($serializedClosure);
 
     $output = call_user_func($closure);
 
-    fputs(STDOUT, serialize($output));
+    fputs(STDOUT, base64_encode(serialize($output)));
 
     exit(0);
 } catch (Throwable $e) {
@@ -32,7 +30,7 @@ try {
 
     $output = new \Spatie\Async\Output\SerializableException($e);
 
-    fputs(STDERR, serialize($output));
+    fputs(STDERR, base64_encode(serialize($output)));
 
     exit(1);
 }

@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": "^7.1",
-        "jeremeamia/superclosure": "^2.3",
+        "opis/closure": "^3.0",
         "symfony/process": "^4.0"
     },
     "require-dev": {

@@ -2,8 +2,11 @@
 
 namespace Spatie\Async;
 
+use Error;
+use PHPUnit\Runner\Exception;
 use Spatie\Async\Output\SerializableException;
 use Symfony\Component\Process\Process;
+use Throwable;
 
 class ParallelProcess
 {
@@ -76,8 +79,14 @@ class ParallelProcess
 
     public function output()
     {
-        if (!$this->output) {
-            $this->output = unserialize($this->process->getOutput());
+        if (! $this->output) {
+            $processOutput = $this->process->getErrorOutput();
+
+            $this->output = @unserialize(base64_decode($processOutput));
+
+            if (! $this->output) {
+                $this->errorOutput = $processOutput;
+            }
         }
 
         return $this->output;
@@ -85,8 +94,16 @@ class ParallelProcess
 
     public function errorOutput()
     {
-        if (!$this->errorOutput) {
-            $this->errorOutput = unserialize($this->process->getErrorOutput());
+        if (! $this->errorOutput) {
+            $processOutput = $this->process->getErrorOutput();
+
+            $errorOutput = @unserialize(base64_decode($processOutput));
+
+            if (! $errorOutput) {
+                $errorOutput = $processOutput;
+            }
+
+            $this->errorOutput = $errorOutput;
         }
 
         return $this->errorOutput;
@@ -118,14 +135,22 @@ class ParallelProcess
 
     public function triggerError()
     {
-        $output = $this->errorOutput();
+        $exception = $this->errorOutput();
 
-        if ($output instanceof SerializableException) {
-            $output = $output->asThrowable();
+        if ($exception instanceof SerializableException) {
+            $exception = $exception->asThrowable();
         }
 
         foreach ($this->errorCallbacks as $callback) {
-            call_user_func_array($callback, [$output]);
+            call_user_func_array($callback, [$exception]);
+        }
+
+        if (! $this->errorCallbacks) {
+            if ($exception instanceof Throwable) {
+                throw $exception;
+            }
+
+            throw new Error($exception);
         }
     }
 

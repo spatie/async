@@ -2,9 +2,10 @@
 
 namespace Spatie\Async\Tests;
 
+use Opis\Closure\SerializableClosure;
 use PHPUnit\Framework\TestCase;
-use SuperClosure\Serializer;
 use Symfony\Component\Process\Process;
+use function Opis\Closure\serialize;
 
 class ChildRuntimeTest extends TestCase
 {
@@ -15,11 +16,9 @@ class ChildRuntimeTest extends TestCase
 
         $autoloader = __DIR__ . '/../vendor/autoload.php';
 
-        $serializer = new Serializer();
-
-        $serializedClosure = base64_encode($serializer->serialize(function () {
+        $serializedClosure = base64_encode(serialize(new SerializableClosure(function () {
             echo 'child';
-        }));
+        })));
 
         $process = new Process("php {$bootstrap} {$autoloader} {$serializedClosure}");
 
