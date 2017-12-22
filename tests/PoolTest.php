@@ -145,10 +145,13 @@ class PoolTest extends TestCase
     {
         $pool = Pool::create();
 
+        /** @var MyClass $result */
         $result = null;
 
         $pool[] = async(function () {
             $class = new MyClass();
+
+            $class->property = true;
 
             return $class;
         })->then(function (MyClass $class) use (&$result) {
@@ -158,5 +161,6 @@ class PoolTest extends TestCase
         await($pool);
 
         $this->assertInstanceOf(MyClass::class, $result);
+        $this->assertTrue($result->property);
     }
 };
