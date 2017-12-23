@@ -1,8 +1,8 @@
 <?php
 
 try {
-    $autoloader = $argv[1];
-    $serializedClosure = base64_decode($argv[2]);
+    $autoloader = $argv[1] ?? null;
+    $serializedClosure = base64_decode($argv[2] ?? '');
 
     if (! $autoloader) {
         throw new InvalidArgumentException('No autoloader provided in child process.');
