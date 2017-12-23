@@ -26,7 +26,7 @@ try {
 
     exit(0);
 } catch (Throwable $e) {
-    require_once __DIR__.'/../Output/SerializableException.php';
+    require_once __DIR__ . '/../Output/SerializableException.php';
 
     $output = new \Spatie\Async\Output\SerializableException($e);
 

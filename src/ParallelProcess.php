@@ -87,7 +87,7 @@ class ParallelProcess
         return $this->process->isTerminated();
     }
 
-    public function output()
+    public function getOutput()
     {
         if (! $this->output) {
             $processOutput = $this->process->getOutput();
@@ -102,7 +102,7 @@ class ParallelProcess
         return $this->output;
     }
 
-    public function errorOutput()
+    public function getErrorOutput()
     {
         if (! $this->errorOutput) {
             $processOutput = $this->process->getErrorOutput();
@@ -117,29 +117,29 @@ class ParallelProcess
         return $this->errorOutput;
     }
 
-    public function process(): Process
+    public function getProcess(): Process
     {
         return $this->process;
     }
 
-    public function id(): string
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function pid(): ?string
+    public function getPid(): ?string
     {
         return $this->pid;
     }
 
-    public function executionTime(): float
+    public function getCurrentExecutionTime(): float
     {
         return microtime(true) - $this->startTime;
     }
 
     public function triggerSuccess()
     {
-        $output = $this->output();
+        $output = $this->getOutput();
 
         foreach ($this->successCallbacks as $callback) {
             call_user_func_array($callback, [$output]);
@@ -150,7 +150,7 @@ class ParallelProcess
 
     public function triggerError()
     {
-        $exception = $this->errorOutput();
+        $exception = $this->getErrorOutput();
 
         if ($exception instanceof SerializableException) {
             $exception = $exception->asThrowable();

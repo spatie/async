@@ -86,7 +86,7 @@ class Pool implements ArrayAccess
     {
         while ($this->inProgress) {
             foreach ($this->inProgress as $process) {
-                if ($process->executionTime() > $this->timeout) {
+                if ($process->getCurrentExecutionTime() > $this->timeout) {
                     $this->markAsTimeout($process);
                 }
             }
@@ -103,29 +103,29 @@ class Pool implements ArrayAccess
 
     public function putInQueue(ParallelProcess $process): void
     {
-        $this->queue[$process->id()] = $process;
+        $this->queue[$process->getId()] = $process;
 
         $this->notify();
     }
 
     public function putInProgress(ParallelProcess $process): void
     {
-        $process->process()->setTimeout($this->timeout);
+        $process->getProcess()->setTimeout($this->timeout);
 
         $process->start();
 
-        unset($this->queue[$process->id()]);
+        unset($this->queue[$process->getId()]);
 
-        $this->inProgress[$process->pid()] = $process;
+        $this->inProgress[$process->getPid()] = $process;
     }
 
     public function markAsFinished(ParallelProcess $process): void
     {
         $this->results[] = $process->triggerSuccess();
 
-        unset($this->inProgress[$process->pid()]);
+        unset($this->inProgress[$process->getPid()]);
 
-        $this->finished[$process->pid()] = $process;
+        $this->finished[$process->getPid()] = $process;
 
         $this->notify();
     }
@@ -134,9 +134,9 @@ class Pool implements ArrayAccess
     {
         $process->triggerTimeout();
 
-        unset($this->inProgress[$process->pid()]);
+        unset($this->inProgress[$process->getPid()]);
 
-        $this->failed[$process->pid()] = $process;
+        $this->failed[$process->getPid()] = $process;
 
         $this->notify();
     }
@@ -145,9 +145,9 @@ class Pool implements ArrayAccess
     {
         $process->triggerError();
 
-        unset($this->inProgress[$process->pid()]);
+        unset($this->inProgress[$process->getPid()]);
 
-        $this->failed[$process->pid()] = $process;
+        $this->failed[$process->getPid()] = $process;
 
         $this->notify();
     }
