@@ -42,16 +42,16 @@ class Pool implements ArrayAccess
         return $this;
     }
 
-    public function tasksPerProcess(int $tasksPerProcess): self
+    public function timeout(int $timeout): self
     {
-        $this->tasksPerProcess = $tasksPerProcess;
+        $this->timeout = $timeout;
 
         return $this;
     }
 
-    public function timeout(int $timeout): self
+    public function autoload(string $autoloader): self
     {
-        $this->timeout = $timeout;
+        ParentRuntime::init($autoloader);
 
         return $this;
     }

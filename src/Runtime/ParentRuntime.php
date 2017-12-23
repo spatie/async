@@ -13,16 +13,21 @@ class ParentRuntime
     protected static $autoloader;
     protected static $childProcessScript;
 
-    public static function init()
+    public static function init(string $autoloader = null)
     {
-        $existingAutoloaderFiles = array_filter([
-            __DIR__.'/../../vendor/autoload.php',
-            __DIR__.'/../../../vendor/autoload.php',
-        ], function (string $path) {
-            return file_exists($path);
-        });
+        if (!$autoloader) {
+            $existingAutoloaderFiles = array_filter([
+                __DIR__.'/../../../autoload.php',
+                __DIR__.'/../../vendor/autoload.php',
+                __DIR__.'/../../../vendor/autoload.php',
+            ], function (string $path) {
+                return file_exists($path);
+            });
 
-        self::$autoloader = reset($existingAutoloaderFiles);
+            $autoloader = reset($existingAutoloaderFiles);
+        }
+
+        self::$autoloader = $autoloader;
         self::$childProcessScript = __DIR__.'/ChildRuntime.php';
 
         self::$isInitialised = true;
