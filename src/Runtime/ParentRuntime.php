@@ -17,9 +17,9 @@ class ParentRuntime
     {
         if (! $autoloader) {
             $existingAutoloaderFiles = array_filter([
-                __DIR__ . '/../../../autoload.php',
-                __DIR__ . '/../../vendor/autoload.php',
-                __DIR__ . '/../../../vendor/autoload.php',
+                __DIR__.'/../../../autoload.php',
+                __DIR__.'/../../vendor/autoload.php',
+                __DIR__.'/../../../vendor/autoload.php',
             ], function (string $path) {
                 return file_exists($path);
             });
@@ -28,7 +28,7 @@ class ParentRuntime
         }
 
         self::$autoloader = $autoloader;
-        self::$childProcessScript = __DIR__ . '/ChildRuntime.php';
+        self::$childProcessScript = __DIR__.'/ChildRuntime.php';
 
         self::$isInitialised = true;
     }
