@@ -9,8 +9,13 @@ use Symfony\Component\Process\Process;
 
 class ParentRuntime
 {
+    /** @var bool */
     protected static $isInitialised = false;
+
+    /** @var string */
     protected static $autoloader;
+
+    /** @var string */
     protected static $childProcessScript;
 
     public static function init(string $autoloader = null)
