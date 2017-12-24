@@ -25,10 +25,10 @@ try {
     fwrite(STDOUT, base64_encode(serialize($output)));
 
     exit(0);
-} catch (Throwable $e) {
+} catch (Throwable $exception) {
     require_once __DIR__.'/../Output/SerializableException.php';
 
-    $output = new \Spatie\Async\Output\SerializableException($e);
+    $output = new \Spatie\Async\Output\SerializableException($exception);
 
     fwrite(STDERR, base64_encode(serialize($output)));
 
