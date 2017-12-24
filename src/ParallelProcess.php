@@ -2,7 +2,6 @@
 
 namespace Spatie\Async;
 
-use Error;
 use Throwable;
 use Symfony\Component\Process\Process;
 use Spatie\Async\Output\SerializableException;
@@ -142,7 +141,7 @@ class ParallelProcess
         if ($this->getErrorOutput()) {
             $this->triggerError();
 
-            return null;
+            return;
         }
 
         $output = $this->getOutput();
