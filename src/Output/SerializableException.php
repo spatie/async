@@ -6,15 +6,20 @@ use Throwable;
 
 class SerializableException
 {
+    /** @var string */
     protected $class;
+
+    /** @var string */
     protected $message;
+
+    /** @var string */
     protected $trace;
 
-    public function __construct(Throwable $e)
+    public function __construct(Throwable $exception)
     {
-        $this->class = get_class($e);
-        $this->message = $e->getMessage();
-        $this->trace = $e->getTraceAsString();
+        $this->class = get_class($exception);
+        $this->message = $exception->getMessage();
+        $this->trace = $exception->getTraceAsString();
     }
 
     public function asThrowable(): Throwable
