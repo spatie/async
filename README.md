@@ -57,7 +57,7 @@ $pool = Pool::create()
 // Configure which autoloader sub processes should use.
     ->autoload(__DIR__ . '/../../vendor/autoload.php')
     
-// Configure how long the loop should sleep before re-checking the processes statuses in milliseconds.
+// Configure how long the loop should sleep before re-checking the process statuses in milliseconds.
     ->sleepTime(50000)
 ;
 ```
