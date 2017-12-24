@@ -154,7 +154,7 @@ There are two very well-known asynchronous libraries in PHP:
 Both have their own take on parallel processing and offer a much wider range of features than this library.
 Our implementation aims for better performance and ease of development, at the cost of a smaller feature set.
 
-I've personally ran some benchmarks against both libraries, for which the code can be found [here](https://github.com/brendt/async-benchmark).
+I've personally ran some benchmarks against both libraries, for which the code can be found [here](https://github.com/spatie/async-benchmark).
 The benchmark consists of 30 iterations of executing the same script.
 The script itself will spawn 30 child processes which will sleep for either 1, 2 or 3 seconds, 
 depending on their position in the queue.
