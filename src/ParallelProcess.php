@@ -139,6 +139,12 @@ class ParallelProcess
 
     public function triggerSuccess()
     {
+        if ($this->getErrorOutput()) {
+            $this->triggerError();
+
+            return null;
+        }
+
         $output = $this->getOutput();
 
         foreach ($this->successCallbacks as $callback) {
@@ -165,7 +171,7 @@ class ParallelProcess
                 throw $exception;
             }
 
-            throw new Error($exception);
+            throw ParallelError::fromException($exception);
         }
     }
 
