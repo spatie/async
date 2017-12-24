@@ -56,7 +56,7 @@ class Pool implements ArrayAccess
         return $this;
     }
 
-    public function notify(): void
+    public function notify()
     {
         if (count($this->inProgress) >= $this->concurrency) {
             return;
@@ -101,14 +101,14 @@ class Pool implements ArrayAccess
         return $this->results;
     }
 
-    public function putInQueue(ParallelProcess $process): void
+    public function putInQueue(ParallelProcess $process)
     {
         $this->queue[$process->getId()] = $process;
 
         $this->notify();
     }
 
-    public function putInProgress(ParallelProcess $process): void
+    public function putInProgress(ParallelProcess $process)
     {
         $process->getProcess()->setTimeout($this->timeout);
 
@@ -119,7 +119,7 @@ class Pool implements ArrayAccess
         $this->inProgress[$process->getPid()] = $process;
     }
 
-    public function markAsFinished(ParallelProcess $process): void
+    public function markAsFinished(ParallelProcess $process)
     {
         $this->results[] = $process->triggerSuccess();
 
@@ -130,7 +130,7 @@ class Pool implements ArrayAccess
         $this->notify();
     }
 
-    public function markAsTimeout(ParallelProcess $process): void
+    public function markAsTimeout(ParallelProcess $process)
     {
         $process->triggerTimeout();
 
@@ -141,7 +141,7 @@ class Pool implements ArrayAccess
         $this->notify();
     }
 
-    public function markAsFailed(ParallelProcess $process): void
+    public function markAsFailed(ParallelProcess $process)
     {
         $process->triggerError();
 
@@ -190,7 +190,7 @@ class Pool implements ArrayAccess
         return $this->failed;
     }
 
-    protected function registerListener(): void
+    protected function registerListener()
     {
         pcntl_async_signals(true);
 
