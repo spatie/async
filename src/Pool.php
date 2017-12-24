@@ -74,6 +74,11 @@ class Pool implements ArrayAccess
         $this->putInProgress($process);
     }
 
+    /**
+     * @param \Spatie\Async\ParallelProcess|callable $process
+     *
+     * @return \Spatie\Async\ParallelProcess
+     */
     public function add($process): ParallelProcess
     {
         if (! $process instanceof ParallelProcess) {
