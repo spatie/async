@@ -10,6 +10,7 @@ class Pool implements ArrayAccess
     protected $concurrency = 20;
     protected $tasksPerProcess = 1;
     protected $timeout = 300;
+    protected $sleepTime = 50000;
 
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $queue = [];
@@ -59,6 +60,13 @@ class Pool implements ArrayAccess
         return $this;
     }
 
+    public function sleepTime(int $sleepTime): self
+    {
+        $this->sleepTime = $sleepTime;
+
+        return $this;
+    }
+
     public function notify()
     {
         if (count($this->inProgress) >= $this->concurrency) {
@@ -103,7 +111,7 @@ class Pool implements ArrayAccess
                 break;
             }
 
-            usleep(50000);
+            usleep($this->sleepTime);
         }
 
         return $this->results;
