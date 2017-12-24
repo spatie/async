@@ -20,7 +20,7 @@ class PoolTest extends TestCase
 
         $startTime = microtime(true);
 
-        for ($i = 0; $i < 5; $i++) {
+        foreach (range(1, 5) as $i) {
             $pool->add(function () {
                 usleep(1000);
             });
@@ -42,7 +42,7 @@ class PoolTest extends TestCase
 
         $counter = 0;
 
-        for ($i = 0; $i < 5; $i++) {
+        foreach (range(1, 5) as $i) {
             $pool->add(function () {
                 return 2;
             })->then(function (int $output) use (&$counter) {
@@ -63,7 +63,7 @@ class PoolTest extends TestCase
 
         $counter = 0;
 
-        for ($i = 0; $i < 5; $i++) {
+        foreach (range(1, 5) as $i) {
             $pool->add(function () {
                 sleep(2);
             })->timeout(function () use (&$counter) {
@@ -81,7 +81,7 @@ class PoolTest extends TestCase
     {
         $pool = Pool::create();
 
-        for ($i = 0; $i < 5; $i++) {
+        foreach (range(1, 5) as $i) {
             $pool->add(function () {
                 throw new Exception('test');
             })->catch(function (Exception $e) {
@@ -102,7 +102,7 @@ class PoolTest extends TestCase
 
         $startTime = microtime(true);
 
-        for ($i = 0; $i < 3; $i++) {
+        foreach (range(1, 3) as $i) {
             $pool->add(function () {
                 sleep(1);
             });
@@ -125,7 +125,7 @@ class PoolTest extends TestCase
 
         $counter = 0;
 
-        for ($i = 0; $i < 5; $i++) {
+        foreach (range(1, 5) as $i) {
             $pool[] = async(function () {
                 usleep(random_int(10, 1000));
 
@@ -172,7 +172,7 @@ class PoolTest extends TestCase
         /** @var MyClass $result */
         $result = null;
 
-        for ($i = 0; $i < 5; $i++) {
+        foreach (range(1, 5) as $i) {
             $pool[] = async(function () {
                 return 2;
             });

@@ -13,10 +13,13 @@ class Pool implements ArrayAccess
 
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $queue = [];
+
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $inProgress = [];
+
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $finished = [];
+
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $failed = [];
 
@@ -87,7 +90,7 @@ class Pool implements ArrayAccess
         while ($this->inProgress) {
             foreach ($this->inProgress as $process) {
                 if ($process->getCurrentExecutionTime() > $this->timeout) {
-                    $this->markAsTimeout($process);
+                    $this->markAsTimedOut($process);
                 }
             }
 
@@ -130,7 +133,7 @@ class Pool implements ArrayAccess
         $this->notify();
     }
 
-    public function markAsTimeout(ParallelProcess $process)
+    public function markAsTimedOut(ParallelProcess $process)
     {
         $process->triggerTimeout();
 
@@ -168,7 +171,7 @@ class Pool implements ArrayAccess
     {
         $this->add($value);
     }
-M
+
     public function offsetUnset($offset)
     {
         // TODO
