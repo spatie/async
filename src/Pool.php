@@ -90,7 +90,7 @@ class Pool implements ArrayAccess
         while ($this->inProgress) {
             foreach ($this->inProgress as $process) {
                 if ($process->getCurrentExecutionTime() > $this->timeout) {
-                    $this->markAsTimeout($process);
+                    $this->markAsTimedOut($process);
                 }
             }
 
@@ -133,7 +133,7 @@ class Pool implements ArrayAccess
         $this->notify();
     }
 
-    public function markAsTimeout(ParallelProcess $process): void
+    public function markAsTimedOut(ParallelProcess $process): void
     {
         $process->triggerTimeout();
 
