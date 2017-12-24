@@ -109,7 +109,7 @@ await($pool);
 ### Error handling
 
 If an exception is thrown from within a child process, and not caught using the `->catch()` callback,
-it will be thrown as a real exception when calling `await()` or `$pool->wait()`.
+it will be thrown as `Spatie\Async\ParallelError` when calling `await()` or `$pool->wait()`.
 
 ## Behind the curtains
 
