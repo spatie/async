@@ -4,17 +4,13 @@ namespace Spatie\Async;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use Spatie\Async\Tests\MyTask;
+use Spatie\Async\Tests\MyClass;
 
 class PoolTest extends TestCase
 {
-    protected $counter = 0;
-
     protected function setUp()
     {
         parent::setUp();
-
-        $this->counter = 0;
     }
 
     /** @test */
@@ -24,7 +20,7 @@ class PoolTest extends TestCase
 
         $startTime = microtime(true);
 
-        for ($i = 0; $i < 5; $i++) {
+        foreach (range(1, 5) as $i) {
             $pool->add(function () {
                 usleep(1000);
             });
@@ -36,8 +32,7 @@ class PoolTest extends TestCase
 
         $executionTime = $endTime - $startTime;
 
-        $this->assertTrue($executionTime >= 0.1);
-        $this->assertTrue($executionTime < 0.2);
+        $this->assertTrue($executionTime < 0.2, "Execution time was {$executionTime}, expected less than 0.2.");
     }
 
     /** @test */
@@ -45,36 +40,40 @@ class PoolTest extends TestCase
     {
         $pool = Pool::create();
 
-        for ($i = 0; $i < 5; $i++) {
+        $counter = 0;
+
+        foreach (range(1, 5) as $i) {
             $pool->add(function () {
                 return 2;
-            })->then(function (int $output) {
-                $this->counter += $output;
+            })->then(function (int $output) use (&$counter) {
+                $counter += $output;
             });
         }
 
         $pool->wait();
 
-        $this->assertEquals(10, $this->counter);
+        $this->assertEquals(10, $counter);
     }
 
     /** @test */
     public function it_can_handle_timeout()
     {
         $pool = Pool::create()
-            ->maximumExecutionTime(0);
+            ->timeout(1);
 
-        for ($i = 0; $i < 5; $i++) {
+        $counter = 0;
+
+        foreach (range(1, 5) as $i) {
             $pool->add(function () {
-                sleep(1);
-            })->timeout(function () {
-                $this->counter += 1;
+                sleep(2);
+            })->timeout(function () use (&$counter) {
+                $counter += 1;
             });
         }
 
         $pool->wait();
 
-        $this->assertEquals(5, $this->counter);
+        $this->assertEquals(5, $counter);
     }
 
     /** @test */
@@ -82,19 +81,16 @@ class PoolTest extends TestCase
     {
         $pool = Pool::create();
 
-        for ($i = 0; $i < 5; $i++) {
+        foreach (range(1, 5) as $i) {
             $pool->add(function () {
                 throw new Exception('test');
             })->catch(function (Exception $e) {
                 $this->assertEquals('test', $e->getMessage());
-
-                $this->counter += 1;
             });
         }
 
         $pool->wait();
 
-        $this->assertEquals(5, $this->counter);
         $this->assertCount(5, $pool->getFailed());
     }
 
@@ -102,15 +98,13 @@ class PoolTest extends TestCase
     public function it_can_handle_a_maximum_of_concurrent_processes()
     {
         $pool = Pool::create()
-            ->concurrency(1);
+            ->concurrency(2);
 
         $startTime = microtime(true);
 
-        for ($i = 0; $i < 5; $i++) {
+        foreach (range(1, 3) as $i) {
             $pool->add(function () {
-                usleep(1000);
-            })->then(function () {
-                $this->counter += 1;
+                sleep(1);
             });
         }
 
@@ -120,9 +114,8 @@ class PoolTest extends TestCase
 
         $executionTime = $endTime - $startTime;
 
-        $this->assertTrue($executionTime >= 0.5);
-        $this->assertEquals(5, $this->counter);
-        $this->assertCount(5, $pool->getFinished());
+        $this->assertTrue($executionTime >= 2, "Execution time was {$executionTime}, expected more than 0.2.");
+        $this->assertCount(3, $pool->getFinished());
     }
 
     /** @test */
@@ -130,43 +123,64 @@ class PoolTest extends TestCase
     {
         $pool = Pool::create();
 
-        for ($i = 0; $i < 5; $i++) {
+        $counter = 0;
+
+        foreach (range(1, 5) as $i) {
             $pool[] = async(function () {
                 usleep(random_int(10, 1000));
 
                 return 2;
-            })->then(function (int $output) {
-                $this->counter += $output;
+            })->then(function (int $output) use (&$counter) {
+                $counter += $output;
             });
         }
 
         await($pool);
 
-        $this->assertEquals(10, $this->counter);
+        $this->assertEquals(10, $counter);
     }
 
     /** @test */
-    public function it_can_run_tasks_bundled()
+    public function it_can_use_a_class_from_the_parent_process()
     {
-        $pool = Pool::create()
-            ->tasksPerProcess(2);
+        $pool = Pool::create();
 
-        $timeStart = microtime(true);
+        /** @var MyClass $result */
+        $result = null;
 
-        for ($i = 0; $i < 7; $i++) {
-            $pool[] = new MyTask(function () {
-                sleep(1);
-            });
-        }
+        $pool[] = async(function () {
+            $class = new MyClass();
+
+            $class->property = true;
+
+            return $class;
+        })->then(function (MyClass $class) use (&$result) {
+            $result = $class;
+        });
 
         await($pool);
 
-        $timeEnd = microtime(true);
+        $this->assertInstanceOf(MyClass::class, $result);
+        $this->assertTrue($result->property);
+    }
 
-        $executionTime = $timeEnd - $timeStart;
+    /** @test */
+    public function it_returns_all_the_output_as_an_array()
+    {
+        $pool = Pool::create();
 
-        $this->assertTrue($executionTime >= 2);
-        $this->assertTrue($executionTime < 3);
-        $this->assertCount(4, $pool->getFinished());
+        /** @var MyClass $result */
+        $result = null;
+
+        foreach (range(1, 5) as $i) {
+            $pool[] = async(function () {
+                return 2;
+            });
+        }
+
+        $result = await($pool);
+
+        $this->assertCount(5, $result);
+        $this->assertEquals(10, array_sum($result));
     }
 }

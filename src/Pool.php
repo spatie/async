@@ -2,29 +2,33 @@
 
 namespace Spatie\Async;
 
-use Exception;
+use ArrayAccess;
+use Spatie\Async\Runtime\ParentRuntime;
 
-class Pool implements \ArrayAccess
+class Pool implements ArrayAccess
 {
-    protected $runtime;
     protected $concurrency = 20;
     protected $tasksPerProcess = 1;
+    protected $timeout = 300;
+    protected $sleepTime = 50000;
 
-    /** @var \Spatie\Async\Task[] */
-    protected $tasks = [];
-
-    /** @var \Spatie\Async\Process[] */
+    /** @var \Spatie\Async\ParallelProcess[] */
     protected $queue = [];
-    /** @var \Spatie\Async\Process[] */
+
+    /** @var \Spatie\Async\ParallelProcess[] */
     protected $inProgress = [];
-    /** @var \Spatie\Async\Process[] */
+
+    /** @var \Spatie\Async\ParallelProcess[] */
     protected $finished = [];
-    /** @var \Spatie\Async\Process[] */
+
+    /** @var \Spatie\Async\ParallelProcess[] */
     protected $failed = [];
+
+    protected $results = [];
 
     public function __construct()
     {
-        $this->runtime = new Runtime();
+        $this->registerListener();
     }
 
     /**
@@ -42,26 +46,29 @@ class Pool implements \ArrayAccess
         return $this;
     }
 
-    public function tasksPerProcess(int $tasksPerProcess): self
+    public function timeout(int $timeout): self
     {
-        $this->tasksPerProcess = $tasksPerProcess;
+        $this->timeout = $timeout;
 
         return $this;
     }
 
-    public function maximumExecutionTime(int $maximumExecutionTime): self
+    public function autoload(string $autoloader): self
     {
-        $this->runtime->maximumExecutionTime($maximumExecutionTime);
+        ParentRuntime::init($autoloader);
 
         return $this;
     }
 
-    public function notify(): void
+    public function sleepTime(int $sleepTime): self
     {
-        if (count($this->tasks) >= $this->tasksPerProcess) {
-            $this->scheduleTasks($this->tasksPerProcess);
-        }
+        $this->sleepTime = $sleepTime;
 
+        return $this;
+    }
+
+    public function notify()
+    {
         if (count($this->inProgress) >= $this->concurrency) {
             return;
         }
@@ -72,105 +79,91 @@ class Pool implements \ArrayAccess
             return;
         }
 
-        $process = $this->run($process);
-
-        $this->inProgress($process);
+        $this->putInProgress($process);
     }
 
-    public function add($process): ?Process
+    /**
+     * @param \Spatie\Async\ParallelProcess|callable $process
+     *
+     * @return \Spatie\Async\ParallelProcess
+     */
+    public function add($process): ParallelProcess
     {
-        if ($process instanceof Task) {
-            $this->queueTask($process);
-
-            return null;
+        if (! $process instanceof ParallelProcess) {
+            $process = ParentRuntime::createChildProcess($process);
         }
 
-        if (! $process instanceof Process) {
-            $process = new CallableProcess($process);
-        }
-
-        $process->setInternalId(uniqid(getmypid()));
-
-        $this->queue($process);
+        $this->putInQueue($process);
 
         return $process;
     }
 
-    public function run(Process $process): Process
+    public function wait(): array
     {
-        return $this->runtime->start($process);
-    }
-
-    public function wait(): void
-    {
-        $this->scheduleTasks();
-
-        while (count($this->inProgress)) {
+        while ($this->inProgress) {
             foreach ($this->inProgress as $process) {
-                $processStatus = pcntl_waitpid($process->pid(), $status, WNOHANG | WUNTRACED);
-
-                if ($processStatus == $process->pid()) {
-                    $isSuccess = $this->runtime->handleFinishedProcess($process);
-
-                    if ($isSuccess) {
-                        $this->finished($process);
-                    } else {
-                        $this->failed($process);
-                    }
-                } elseif ($processStatus == 0) {
-                    $isRunning = $this->runtime->handleRunningProcess($process, $status);
-
-                    if (!$isRunning) {
-                        $this->failed($process);
-                    }
-                } else {
-                    throw new Exception("Could not reliably manage process {$process->pid()}");
+                if ($process->getCurrentExecutionTime() > $this->timeout) {
+                    $this->markAsTimedOut($process);
                 }
             }
 
-            if (! count($this->inProgress)) {
+            if (! $this->inProgress) {
                 break;
             }
 
-            usleep(100000);
+            usleep($this->sleepTime);
         }
+
+        return $this->results;
     }
 
-    public function queueTask(Task $task): void
+    public function putInQueue(ParallelProcess $process)
     {
-        $this->tasks[] = $task;
+        $this->queue[$process->getId()] = $process;
 
         $this->notify();
     }
 
-    public function queue(Process $process): void
+    public function putInProgress(ParallelProcess $process)
     {
-        $this->queue[$process->internalId()] = $process;
+        $process->getProcess()->setTimeout($this->timeout);
+
+        $process->start();
+
+        unset($this->queue[$process->getId()]);
+
+        $this->inProgress[$process->getPid()] = $process;
+    }
+
+    public function markAsFinished(ParallelProcess $process)
+    {
+        $this->results[] = $process->triggerSuccess();
+
+        unset($this->inProgress[$process->getPid()]);
+
+        $this->finished[$process->getPid()] = $process;
 
         $this->notify();
     }
 
-    public function inProgress(Process $process): void
+    public function markAsTimedOut(ParallelProcess $process)
     {
-        unset($this->queue[$process->internalId()]);
+        $process->triggerTimeout();
 
-        $this->inProgress[$process->pid()] = $process;
-    }
+        unset($this->inProgress[$process->getPid()]);
 
-    public function finished(Process $process): void
-    {
-        unset($this->inProgress[$process->pid()]);
-
-        $this->finished[$process->pid()] = $process;
+        $this->failed[$process->getPid()] = $process;
 
         $this->notify();
     }
 
-    public function failed(Process $process): void
+    public function markAsFailed(ParallelProcess $process)
     {
-        unset($this->inProgress[$process->pid()]);
+        $process->triggerError();
 
-        $this->failed[$process->pid()] = $process;
+        unset($this->inProgress[$process->getPid()]);
+
+        $this->failed[$process->getPid()] = $process;
 
         $this->notify();
     }
@@ -197,26 +190,8 @@ class Pool implements \ArrayAccess
         // TODO
     }
 
-    protected function scheduleTasks(?int $amount = null): void
-    {
-        $amount = $amount ?? count($this->tasks);
-
-        $tasksToRun = array_splice($this->tasks, 0, $amount);
-
-        if (! count($tasksToRun)) {
-            return;
-        }
-
-        $this->add(new CallableProcess(function () use ($tasksToRun) {
-            /** @var \Spatie\Async\Task $task */
-            foreach ($tasksToRun as $task) {
-                $task->execute();
-            }
-        }));
-    }
-
     /**
-     * @return \Spatie\Async\Process[]
+     * @return \Spatie\Async\ParallelProcess[]
      */
     public function getFinished(): array
     {
@@ -224,10 +199,39 @@ class Pool implements \ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process[]
+     * @return \Spatie\Async\ParallelProcess[]
      */
     public function getFailed(): array
     {
         return $this->failed;
+    }
+
+    protected function registerListener()
+    {
+        pcntl_async_signals(true);
+
+        pcntl_signal(SIGCHLD, function ($signo, $status) {
+            while (true) {
+                $pid = pcntl_waitpid(-1, $processState, WNOHANG | WUNTRACED);
+
+                if ($pid <= 0) {
+                    break;
+                }
+
+                $process = $this->inProgress[$pid] ?? null;
+
+                if (! $process) {
+                    continue;
+                }
+
+                if ($status['status'] === 0) {
+                    $this->markAsFinished($process);
+
+                    continue;
+                }
+
+                $this->markAsFailed($process);
+            }
+        });
     }
 }

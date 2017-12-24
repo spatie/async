@@ -1,23 +1,19 @@
 <?php
 
 use Spatie\Async\Pool;
-use Spatie\Async\Process;
-use Spatie\Async\CallableProcess;
+use Spatie\Async\ParallelProcess;
+use Spatie\Async\Runtime\ParentRuntime;
 
 if (! function_exists('async')) {
-    function async($process): Process
+    function async(callable $callable): ParallelProcess
     {
-        if (! $process instanceof Process) {
-            $process = new CallableProcess($process);
-        }
-
-        return $process;
+        return ParentRuntime::createChildProcess($callable);
     }
 }
 
 if (! function_exists('await')) {
-    function await(Pool $pool): void
+    function await(Pool $pool): array
     {
-        $pool->wait();
+        return $pool->wait();
     }
 }

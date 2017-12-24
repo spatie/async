@@ -16,9 +16,12 @@
         }
     ],
     "require": {
-        "php": "^7.1"
+        "php": "^7.1",
+        "opis/closure": "^3.0",
+        "symfony/process": "^4.0"
     },
     "require-dev": {
+        "larapack/dd": "^1.1",
         "phpunit/phpunit": "^6.0"
     },
     "autoload": {
