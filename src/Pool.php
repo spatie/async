@@ -13,10 +13,13 @@ class Pool implements ArrayAccess
 
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $queue = [];
+
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $inProgress = [];
+
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $finished = [];
+
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $failed = [];
 
