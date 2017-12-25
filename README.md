@@ -29,7 +29,7 @@ foreach ($things as $thing) {
         // Do a thing
     })->then(function ($output) {
         // Handle success
-    })->catch(function (Exception $e) {
+    })->catch(function (Throwable $e) {
         // Handle exception
     });
 }
