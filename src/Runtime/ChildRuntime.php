@@ -1,7 +1,6 @@
 <?php
 
 use Spatie\Async\Runtime\ParentRuntime;
-use Spatie\Async\Task;
 
 try {
     $autoloader = $argv[1] ?? null;

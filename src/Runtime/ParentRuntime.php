@@ -2,9 +2,9 @@
 
 namespace Spatie\Async\Runtime;
 
+use Spatie\Async\Task;
 use Spatie\Async\ParallelProcess;
 use Opis\Closure\SerializableClosure;
-use Spatie\Async\Task;
 use Symfony\Component\Process\Process;
 use function Opis\Closure\serialize;
 use function Opis\Closure\unserialize;
@@ -69,7 +69,7 @@ class ParentRuntime
      */
     public static function encodeTask($task): string
     {
-        if (!$task instanceof Task) {
+        if (! $task instanceof Task) {
             $task = new SerializableClosure($task);
         }
 
