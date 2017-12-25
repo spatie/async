@@ -1,8 +1,11 @@
 <?php
 
+use Spatie\Async\Runtime\ParentRuntime;
+use Spatie\Async\Task;
+
 try {
     $autoloader = $argv[1] ?? null;
-    $serializedClosure = base64_decode($argv[2] ?? '');
+    $serializedClosure = $argv[2] ?? null;
 
     if (! $autoloader) {
         throw new InvalidArgumentException('No autoloader provided in child process.');
@@ -18,9 +21,9 @@ try {
 
     require_once $autoloader;
 
-    $closure = Opis\Closure\unserialize($serializedClosure);
+    $task = ParentRuntime::decodeTask($serializedClosure);
 
-    $output = call_user_func($closure);
+    $output = call_user_func($task);
 
     fwrite(STDOUT, base64_encode(serialize($output)));
 
