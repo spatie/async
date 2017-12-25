@@ -5,9 +5,14 @@ use Spatie\Async\ParallelProcess;
 use Spatie\Async\Runtime\ParentRuntime;
 
 if (! function_exists('async')) {
-    function async(callable $callable): ParallelProcess
+    /**
+     * @param \Spatie\Async\Task|callable $task
+     *
+     * @return \Spatie\Async\ParallelProcess
+     */
+    function async($task): ParallelProcess
     {
-        return ParentRuntime::createChildProcess($callable);
+        return ParentRuntime::createChildProcess($task);
     }
 }
 
