@@ -2,12 +2,12 @@
 
 namespace Spatie\Async\Runtime;
 
-use Spatie\Async\ParallelProcess;
-use Opis\Closure\SerializableClosure;
 use Spatie\Async\Task;
-use Symfony\Component\Process\Process;
+use Spatie\Async\ParallelProcess;
 use function Opis\Closure\serialize;
+use Opis\Closure\SerializableClosure;
 use function Opis\Closure\unserialize;
+use Symfony\Component\Process\Process;
 
 class ParentRuntime
 {
@@ -24,10 +24,10 @@ class ParentRuntime
     {
         if (! $autoloader) {
             $existingAutoloaderFiles = array_filter([
-                __DIR__ . '/../../../../autoload.php',
-                __DIR__ . '/../../../autoload.php',
-                __DIR__ . '/../../vendor/autoload.php',
-                __DIR__ . '/../../../vendor/autoload.php',
+                __DIR__.'/../../../../autoload.php',
+                __DIR__.'/../../../autoload.php',
+                __DIR__.'/../../vendor/autoload.php',
+                __DIR__.'/../../../vendor/autoload.php',
             ], function (string $path) {
                 return file_exists($path);
             });
@@ -36,7 +36,7 @@ class ParentRuntime
         }
 
         self::$autoloader = $autoloader;
-        self::$childProcessScript = __DIR__ . '/ChildRuntime.php';
+        self::$childProcessScript = __DIR__.'/ChildRuntime.php';
 
         self::$isInitialised = true;
     }
@@ -69,7 +69,7 @@ class ParentRuntime
      */
     public static function encodeTask($task): string
     {
-        if (!$task instanceof Task) {
+        if (! $task instanceof Task) {
             $task = new SerializableClosure($task);
         }
 
