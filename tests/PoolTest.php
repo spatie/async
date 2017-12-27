@@ -32,7 +32,7 @@ class PoolTest extends TestCase
 
         $executionTime = $endTime - $startTime;
 
-        $this->assertTrue($executionTime < 0.2, "Execution time was {$executionTime}, expected less than 0.2.");
+        $this->assertLessThan(0.2, $executionTime, "Execution time was {$executionTime}, expected less than 0.2.");
     }
 
     /** @test */
@@ -114,7 +114,7 @@ class PoolTest extends TestCase
 
         $executionTime = $endTime - $startTime;
 
-        $this->assertTrue($executionTime >= 2, "Execution time was {$executionTime}, expected more than 0.2.");
+        $this->assertGreaterThanOrEqual(2, $executionTime, "Execution time was {$executionTime}, expected more than 2.");
         $this->assertCount(3, $pool->getFinished());
     }
 
