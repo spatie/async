@@ -29,7 +29,7 @@ foreach ($things as $thing) {
         // Do a thing
     })->then(function ($output) {
         // Handle success
-    })->catch(function (Throwable $e) {
+    })->catch(function (Throwable $exception) {
         // Handle exception
     });
 }
@@ -110,6 +110,33 @@ await($pool);
 
 If an exception is thrown from within a child process, and not caught using the `->catch()` callback,
 it will be thrown as `Spatie\Async\ParallelError` when calling `await()` or `$pool->wait()`.
+
+### Working with tasks
+
+Besides using closures, you can also work with a `Task`. 
+A `Task` is useful in situations where you need more setup work in the child process.
+Because a child process is always bootstrapped from nothing, chances are you'll want to initialise eg. the dependency container before executing the task.
+The `Task` class makes this easier to do.
+
+```php
+use Spatie\Async\Task;
+
+class MyTask extends Task
+{
+    public function configure()
+    {
+        // Setup eg. dependency container, load config,...
+    }
+
+    public function execute()
+    {
+        // Do the real work here.
+    }
+}
+
+// Add the task to the pool
+$pool->add(new MyTask());
+```
 
 ## Behind the curtains
 

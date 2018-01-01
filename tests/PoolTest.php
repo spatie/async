@@ -3,6 +3,7 @@
 namespace Spatie\Async;
 
 use Exception;
+use Spatie\Async\Tests\MyTask;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Tests\MyClass;
 
@@ -182,5 +183,29 @@ class PoolTest extends TestCase
 
         $this->assertCount(5, $result);
         $this->assertEquals(10, array_sum($result));
+    }
+
+    /** @test */
+    public function it_can_work_with_tasks()
+    {
+        $pool = Pool::create();
+
+        $pool[] = async(new MyTask());
+
+        $results = await($pool);
+
+        $this->assertEquals(2, $results[0]);
+    }
+
+    /** @test */
+    public function it_can_accept_tasks_with_pool_add()
+    {
+        $pool = Pool::create();
+
+        $pool->add(new MyTask());
+
+        $results = await($pool);
+
+        $this->assertEquals(2, $results[0]);
     }
 }
