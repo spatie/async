@@ -3,8 +3,8 @@
 namespace Spatie\Async;
 
 use Exception;
-use PHPUnit\Framework\TestCase;
 use Spatie\Async\Tests\MyTask;
+use PHPUnit\Framework\TestCase;
 
 class PoolStatusTest extends TestCase
 {
