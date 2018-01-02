@@ -24,7 +24,7 @@ class Pool implements ArrayAccess
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $failed = [];
 
-    /** @var \Spatie\Async\ParallelProcess[]  */
+    /** @var \Spatie\Async\ParallelProcess[] */
     protected $timeouts = [];
 
     protected $results = [];
