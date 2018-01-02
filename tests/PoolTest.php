@@ -12,6 +12,12 @@ class PoolTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
+
+        $supported = Pool::isSupported();
+
+        if (! $supported) {
+            $this->markTestSkipped('Extensions `posix` and `pcntl` not supported.');
+        }
     }
 
     /** @test */
@@ -207,5 +213,11 @@ class PoolTest extends TestCase
         $results = await($pool);
 
         $this->assertEquals(2, $results[0]);
+    }
+
+    /** @test */
+    public function it_can_check_for_asynchronous_support()
+    {
+        $this->assertTrue(Pool::isSupported());
     }
 }

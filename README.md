@@ -138,6 +138,30 @@ class MyTask extends Task
 $pool->add(new MyTask());
 ```
 
+### Check for platform support at runtime
+
+The `Pool` class has a static method `isSupported` you can call to check whether your platform is able to run asynchronous processes. You can use this check in combination with a `Task` to be able to easily run the same code synchronous or asynchronous.
+
+```php
+$pool = Pool::create();
+
+foreach ($things as $thing) {
+    $task = new MyTask($thing);
+    
+    if (! Pool::isSupported()) {
+        $task->execute();
+        
+        continue;
+    }
+
+    $pool->add($task);
+}
+
+if (Pool::isSupported()) {
+    $pool->wait();
+}
+``` 
+
 ## Behind the curtains
 
 When using this package, you're probably wondering what's happening underneath the surface.
