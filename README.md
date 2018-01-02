@@ -148,7 +148,7 @@ $pool = Pool::create();
 foreach ($things as $thing) {
     $task = new MyTask($thing);
     
-    if (!Pool::isSupported()) {
+    if (! Pool::isSupported()) {
         $task->execute();
         
         continue;
