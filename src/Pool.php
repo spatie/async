@@ -24,6 +24,9 @@ class Pool implements ArrayAccess
     /** @var \Spatie\Async\ParallelProcess[] */
     protected $failed = [];
 
+    /** @var \Spatie\Async\ParallelProcess[]  */
+    protected $timeouts = [];
+
     protected $results = [];
 
     public function __construct()
@@ -157,7 +160,7 @@ class Pool implements ArrayAccess
 
         unset($this->inProgress[$process->getPid()]);
 
-        $this->failed[$process->getPid()] = $process;
+        $this->timeouts[$process->getPid()] = $process;
 
         $this->notify();
     }
@@ -209,6 +212,14 @@ class Pool implements ArrayAccess
     public function getFailed(): array
     {
         return $this->failed;
+    }
+
+    /**
+     * @return \Spatie\Async\ParallelProcess[]
+     */
+    public function getTimeouts(): array
+    {
+        return $this->timeouts;
     }
 
     protected function registerListener()
