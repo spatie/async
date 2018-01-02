@@ -34,7 +34,7 @@ class PoolStatus
 
         return 'finished: '.count($finished)
             .' - failed: '.count($failed)
-            .' - timeouts: '.count($timeouts);
+            .' - timeout: '.count($timeouts);
     }
 
     protected function failedToString(): string
