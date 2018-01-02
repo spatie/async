@@ -15,7 +15,7 @@ class PoolTest extends TestCase
 
         $supported = Pool::isSupported();
 
-        if (!$supported) {
+        if (! $supported) {
             $this->markTestSkipped('Extensions `posix` and `pcntl` not supported.');
         }
     }
