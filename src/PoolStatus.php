@@ -23,7 +23,7 @@ class PoolStatus
 
     protected function lines(string ...$lines): string
     {
-        return implode("\n", $lines);
+        return implode(PHP_EOL, $lines);
     }
 
     protected function summaryToString(): string
@@ -39,20 +39,14 @@ class PoolStatus
 
     protected function failedToString(): string
     {
-        $failed = $this->pool->getFailed();
-
-        $status = '';
-
-        foreach ($failed as $process) {
+        return (string) array_reduce($this->pool->getFailed(), function ($currentStatus, ParallelProcess $process) {
             $output = $process->getErrorOutput();
 
             if ($output instanceof SerializableException) {
                 $output = get_class($output->asThrowable()).': '.$output->asThrowable()->getMessage();
             }
 
-            $status = $this->lines($status, "{$process->getPid()} failed with {$output}");
-        }
-
-        return $status;
+            return $this->lines((string) $currentStatus, "{$process->getPid()} failed with {$output}");
+        });
     }
 }
