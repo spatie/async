@@ -32,9 +32,9 @@ class PoolStatus
         $failed = $this->pool->getFailed();
         $timeouts = $this->pool->getTimeouts();
 
-        return 'finished: ' . count($finished)
-            . ' - failed: ' . count($failed)
-            . ' - timeouts: ' . count($timeouts);
+        return 'finished: '.count($finished)
+            .' - failed: '.count($failed)
+            .' - timeouts: '.count($timeouts);
     }
 
     protected function failedToString(): string
@@ -47,7 +47,7 @@ class PoolStatus
             $output = $process->getErrorOutput();
 
             if ($output instanceof SerializableException) {
-                $output = get_class($output->asThrowable()) . ': ' . $output->asThrowable()->getMessage();
+                $output = get_class($output->asThrowable()).': '.$output->asThrowable()->getMessage();
             }
 
             $status = $this->lines($status, "{$process->getPid()} failed with {$output}");
