@@ -39,19 +39,18 @@ class PoolStatus
 
     protected function failedToString(): string
     {
-
         $failed = $this->pool->getFailed();
 
-        $status = "\nFailed status:\n\n";
+        $status = '';
 
         foreach ($failed as $process) {
             $output = $process->getErrorOutput();
 
             if ($output instanceof SerializableException) {
-                $output = get_class($output->asThrowable()) . ' ' . $output->asThrowable()->getMessage();
+                $output = get_class($output->asThrowable()) . ': ' . $output->asThrowable()->getMessage();
             }
 
-            $status .= "{$process->getId()} failed with {$output}\n\n";
+            $status = $this->lines($status, "{$process->getPid()} failed with {$output}");
         }
 
         return $status;
