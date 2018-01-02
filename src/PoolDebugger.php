@@ -8,8 +8,8 @@ class PoolDebugger
 {
     public static function statusForPool(Pool $pool): string
     {
-        return self::summaryForPool($pool) . "\n"
-            . self::statusForFailed($pool);
+        return self::summaryForPool($pool)."\n"
+            .self::statusForFailed($pool);
     }
 
     public static function summaryForPool(Pool $pool): string
@@ -18,9 +18,9 @@ class PoolDebugger
         $failed = $pool->getFailed();
         $timeouts = $pool->getTimeouts();
 
-        return 'finished: ' . count($finished)
-            . ' - failed: ' . count($failed)
-            . ' - timeouts: ' . count($timeouts);
+        return 'finished: '.count($finished)
+            .' - failed: '.count($failed)
+            .' - timeouts: '.count($timeouts);
     }
 
     public static function statusForFailed(Pool $pool): string
@@ -33,7 +33,7 @@ class PoolDebugger
             $output = $process->getErrorOutput();
 
             if ($output instanceof SerializableException) {
-                $output = get_class($output->asThrowable()) . ' ' . $output->asThrowable()->getMessage();
+                $output = get_class($output->asThrowable()).' '.$output->asThrowable()->getMessage();
             }
 
             $status .= "{$process->getId()} failed with {$output}\n\n";
