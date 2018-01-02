@@ -39,6 +39,11 @@ class Pool implements ArrayAccess
         return new static();
     }
 
+    public static function isSupported(): bool
+    {
+        return function_exists('pcntl_async_signals') && function_exists('posix_kill');
+    }
+
     public function concurrency(int $concurrency): self
     {
         $this->concurrency = $concurrency;
