@@ -50,8 +50,6 @@ class PoolStatusTest extends TestCase
         foreach (range(1, 5) as $i) {
             $pool->add(function () {
                 sleep(1000);
-            })->catch(function () {
-                // Do nothing
             });
         }
 
