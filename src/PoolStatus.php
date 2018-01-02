@@ -4,28 +4,43 @@ namespace Spatie\Async;
 
 use Spatie\Async\Output\SerializableException;
 
-class PoolDebugger
+class PoolStatus
 {
-    public static function statusForPool(Pool $pool): string
+    protected $pool;
+
+    public function __construct(Pool $pool)
     {
-        return self::summaryForPool($pool) . "\n"
-            . self::statusForFailed($pool);
+        $this->pool = $pool;
     }
 
-    public static function summaryForPool(Pool $pool): string
+    public function __toString(): string
     {
-        $finished = $pool->getFinished();
-        $failed = $pool->getFailed();
-        $timeouts = $pool->getTimeouts();
+        return $this->lines(
+            $this->summaryToString(),
+            $this->failedToString()
+        );
+    }
+
+    protected function lines(string ...$lines): string
+    {
+        return implode("\n", $lines);
+    }
+
+    protected function summaryToString(): string
+    {
+        $finished = $this->pool->getFinished();
+        $failed = $this->pool->getFailed();
+        $timeouts = $this->pool->getTimeouts();
 
         return 'finished: ' . count($finished)
             . ' - failed: ' . count($failed)
             . ' - timeouts: ' . count($timeouts);
     }
 
-    public static function statusForFailed(Pool $pool): string
+    protected function failedToString(): string
     {
-        $failed = $pool->getFailed();
+
+        $failed = $this->pool->getFailed();
 
         $status = "\nFailed status:\n\n";
 

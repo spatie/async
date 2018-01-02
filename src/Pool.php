@@ -29,9 +29,13 @@ class Pool implements ArrayAccess
 
     protected $results = [];
 
+    protected $status;
+
     public function __construct()
     {
         $this->registerListener();
+
+        $this->status = new PoolStatus($this);
     }
 
     /**
@@ -220,6 +224,11 @@ class Pool implements ArrayAccess
     public function getTimeouts(): array
     {
         return $this->timeouts;
+    }
+
+    public function status(): PoolStatus
+    {
+        return $this->status;
     }
 
     protected function registerListener()

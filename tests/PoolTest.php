@@ -39,7 +39,7 @@ class PoolTest extends TestCase
 
         $executionTime = $endTime - $startTime;
 
-        $this->assertLessThan(0.2, $executionTime, "Execution time was {$executionTime}, expected less than 0.2.\n" . PoolDebugger::statusForPool($pool));
+        $this->assertLessThan(0.2, $executionTime, "Execution time was {$executionTime}, expected less than 0.2.\n" . (string) $pool->status());
     }
 
     /** @test */
@@ -59,7 +59,7 @@ class PoolTest extends TestCase
 
         $pool->wait();
 
-        $this->assertEquals(10, $counter, PoolDebugger::statusForPool($pool));
+        $this->assertEquals(10, $counter, (string) $pool->status());
     }
 
     /** @test */
@@ -80,7 +80,7 @@ class PoolTest extends TestCase
 
         $pool->wait();
 
-        $this->assertEquals(5, $counter, PoolDebugger::statusForPool($pool));
+        $this->assertEquals(5, $counter, (string) $pool->status());
     }
 
     /** @test */
@@ -98,7 +98,7 @@ class PoolTest extends TestCase
 
         $pool->wait();
 
-        $this->assertCount(5, $pool->getFailed(), PoolDebugger::statusForPool($pool));
+        $this->assertCount(5, $pool->getFailed(), (string) $pool->status());
     }
 
     /** @test */
@@ -121,8 +121,8 @@ class PoolTest extends TestCase
 
         $executionTime = $endTime - $startTime;
 
-        $this->assertGreaterThanOrEqual(2, $executionTime, "Execution time was {$executionTime}, expected more than 2.\n" . PoolDebugger::statusForPool($pool));
-        $this->assertCount(3, $pool->getFinished(), PoolDebugger::statusForPool($pool));
+        $this->assertGreaterThanOrEqual(2, $executionTime, "Execution time was {$executionTime}, expected more than 2.\n" . (string) $pool->status());
+        $this->assertCount(3, $pool->getFinished(), (string) $pool->status());
     }
 
     /** @test */
@@ -144,7 +144,7 @@ class PoolTest extends TestCase
 
         await($pool);
 
-        $this->assertEquals(10, $counter, PoolDebugger::statusForPool($pool));
+        $this->assertEquals(10, $counter, (string) $pool->status());
     }
 
     /** @test */
@@ -219,5 +219,19 @@ class PoolTest extends TestCase
     public function it_can_check_for_asynchronous_support()
     {
         $this->assertTrue(Pool::isSupported());
+    }
+
+    /** @test */
+    public function it_can_show_a_textual_status()
+    {
+        $pool = Pool::create();
+
+        $pool->add(new MyTask());
+
+        $this->assertContains('finished: 0', (string) $pool->status());
+
+        await($pool);
+
+        $this->assertContains('finished: 1', (string) $pool->status());
     }
 }
