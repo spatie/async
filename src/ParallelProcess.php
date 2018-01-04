@@ -21,15 +21,15 @@ class ParallelProcess
 
     protected $startTime;
 
-    public function __construct(Process $process)
+    public function __construct(Process $process, string $id)
     {
         $this->process = $process;
-        $this->id = uniqid(getmypid());
+        $this->id = $id;
     }
 
-    public static function create(Process $process): self
+    public static function create(Process $process, string $id): self
     {
-        return new self($process);
+        return new self($process, $id);
     }
 
     public function then(callable $callback): self

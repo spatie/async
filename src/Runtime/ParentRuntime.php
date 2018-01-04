@@ -20,6 +20,10 @@ class ParentRuntime
     /** @var string */
     protected static $childProcessScript;
 
+    protected static $currentId = 0;
+
+    protected static $myPid = null;
+
     public static function init(string $autoloader = null)
     {
         if (! $autoloader) {
@@ -59,7 +63,7 @@ class ParentRuntime
             self::encodeTask($task),
         ]));
 
-        return ParallelProcess::create($process);
+        return ParallelProcess::create($process, self::getId());
     }
 
     /**
@@ -79,5 +83,16 @@ class ParentRuntime
     public static function decodeTask(string $task)
     {
         return unserialize(base64_decode($task));
+    }
+
+    protected static function getId(): string
+    {
+        if (self::$myPid === null) {
+            self::$myPid = getmypid();
+        }
+
+        self::$currentId += 1;
+
+        return (string) self::$currentId . (string) self::$myPid;
     }
 }
