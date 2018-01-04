@@ -149,35 +149,35 @@ class Pool implements ArrayAccess
 
     public function markAsFinished(ParallelProcess $process)
     {
-        $this->results[] = $process->triggerSuccess();
-
         unset($this->inProgress[$process->getPid()]);
 
-        $this->finished[$process->getPid()] = $process;
-
         $this->notify();
+
+        $this->results[] = $process->triggerSuccess();
+
+        $this->finished[$process->getPid()] = $process;
     }
 
     public function markAsTimedOut(ParallelProcess $process)
     {
-        $process->triggerTimeout();
-
         unset($this->inProgress[$process->getPid()]);
 
-        $this->timeouts[$process->getPid()] = $process;
-
         $this->notify();
+
+        $process->triggerTimeout();
+
+        $this->timeouts[$process->getPid()] = $process;
     }
 
     public function markAsFailed(ParallelProcess $process)
     {
-        $process->triggerError();
-
         unset($this->inProgress[$process->getPid()]);
 
-        $this->failed[$process->getPid()] = $process;
-
         $this->notify();
+
+        $process->triggerError();
+
+        $this->failed[$process->getPid()] = $process;
     }
 
     public function offsetExists($offset)
