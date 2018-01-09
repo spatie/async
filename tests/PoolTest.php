@@ -2,7 +2,6 @@
 
 namespace Spatie\Async;
 
-use Exception;
 use Spatie\Async\Tests\MyTask;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Tests\MyClass;
@@ -81,24 +80,6 @@ class PoolTest extends TestCase
         $pool->wait();
 
         $this->assertEquals(5, $counter, (string) $pool->status());
-    }
-
-    /** @test */
-    public function it_can_handle_exceptions()
-    {
-        $pool = Pool::create();
-
-        foreach (range(1, 5) as $i) {
-            $pool->add(function () {
-                throw new Exception('test');
-            })->catch(function (Exception $e) {
-                $this->assertEquals('test', $e->getMessage());
-            });
-        }
-
-        $pool->wait();
-
-        $this->assertCount(5, $pool->getFailed(), (string) $pool->status());
     }
 
     /** @test */

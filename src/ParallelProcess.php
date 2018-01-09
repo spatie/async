@@ -155,22 +155,14 @@ class ParallelProcess
 
     public function triggerError()
     {
-        $exception = $this->getErrorOutput();
-
-        if ($exception instanceof SerializableException) {
-            $exception = $exception->asThrowable();
-        }
+        $exception = $this->resolveErrorOutput();
 
         foreach ($this->errorCallbacks as $callback) {
             call_user_func_array($callback, [$exception]);
         }
 
         if (! $this->errorCallbacks) {
-            if ($exception instanceof Throwable) {
-                throw $exception;
-            }
-
-            throw ParallelError::fromException($exception);
+            throw $exception;
         }
     }
 
@@ -179,5 +171,20 @@ class ParallelProcess
         foreach ($this->timeoutCallbacks as $callback) {
             call_user_func_array($callback, []);
         }
+    }
+
+    protected function resolveErrorOutput(): Throwable
+    {
+        $exception = $this->getErrorOutput();
+
+        if ($exception instanceof SerializableException) {
+            $exception = $exception->asThrowable();
+        }
+
+        if (! $exception instanceof Throwable) {
+            $exception = ParallelError::fromException($exception);
+        }
+
+        return $exception;
     }
 }
