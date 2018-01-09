@@ -75,7 +75,7 @@ $pool
     ->then(function ($output) {
         // On success, `$output` is returned by the process or callable you passed to the queue.
     })
-    ->error(function ($e) {
+    ->catch(function ($exception) {
         // When an exception is thrown from within a process, it's caught and passed here.
     })
     ->timeout(function () {
@@ -108,8 +108,20 @@ await($pool);
 
 ### Error handling
 
-If an exception or error is thrown from within a child process, and not caught using the `->catch()` callback,
-it will be thrown in the parent process when calling `await()` or `$pool->wait()`.
+If an `Exception` or `Error` is thrown from within a child process, it can be caught per process by specifying a callback in the `->catch()` method.
+
+```php
+$pool
+    ->add(function () {
+        // ...
+    })
+    ->catch(function ($exception) {
+        // Handle the thrown exception for this child process.
+    })
+;
+```
+
+If there's no error handler added, the error will be thrown in the parent process when calling `await()` or `$pool->wait()`.
 
 If the child process would unexpectedly stop without throwing an `Throwable`, 
 the output written to `stderr` will be wrapped and thrown as `Spatie\Async\ParallelError` in the parent process.
@@ -201,34 +213,9 @@ Likewise, when a process fails or times out, the loop will update that process' 
 When all processes are finished, the while loop will see that there's nothing more to wait for, and stop.
 This is the moment your parent process can continue to execute.
 
-## Comparison to other libraries
+### Comparison to other libraries
 
-There are two very well-known asynchronous libraries in PHP:
-
-- [ReactPHP](https://github.com/reactphp)
-- [Amp](https://github.com/amphp)
-
-Both have their own take on parallel processing and offer a much wider range of features than this library.
-Our implementation aims for better performance and ease of development, at the cost of a smaller feature set.
-
-I've personally ran some benchmarks against both libraries, for which the code can be found [here](https://github.com/spatie/async-benchmark).
-The benchmark consists of 30 iterations of executing the same script.
-The script itself will spawn 30 child processes which will sleep for either 1, 2 or 3 seconds,
-depending on their position in the queue.
-This way there's no random element in the sleep time, though there is variation.
-These are the results, plotting the executing time of every iteration, in seconds.
-
-![Comaring spatie/async to Amp and ReactPHP](./docs/benchmarks.png)
-
-You can see that both Amp and our implementation are less performant than ReactPHP.
-If you're looking for pure performance, ReactPHP might be a better choice.
-Our package though has the benefit of a much simpler API, in our opinion.
-We're also still improving this package, so chances are performance will be better in the future.
-
-So when should you use this library?
-The benchmarks show that we're in the same league as Amp and ReactPHP for performing processes in parallel.
-Both other libraries offer a lot more functionality, though often at the cost of simplicity or performance.
-This package aims to solve only part of the bigger picture, but tries to solve it in a performant and easy-to-use way.
+We've written a blog post containing more information about use cases for this package, as well as making comparisons to other asynchronous PHP libraries like ReactPHP and Amp: [http://stitcher.io.test/blog/asynchronous-php](http://stitcher.io.test/blog/asynchronous-php).
 
 ## Testing
 
