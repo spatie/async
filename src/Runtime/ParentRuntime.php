@@ -93,6 +93,6 @@ class ParentRuntime
 
         self::$currentId += 1;
 
-        return (string) self::$currentId . (string) self::$myPid;
+        return (string) self::$currentId.(string) self::$myPid;
     }
 }

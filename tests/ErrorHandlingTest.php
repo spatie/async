@@ -3,9 +3,9 @@
 namespace Spatie\Async\Tests;
 
 use Error;
+use Spatie\Async\Pool;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\ParallelError;
-use Spatie\Async\Pool;
 
 class ErrorHandlingTest extends TestCase
 {
@@ -79,7 +79,7 @@ class ErrorHandlingTest extends TestCase
         $pool = Pool::create();
 
         $pool->add(function () {
-            fwrite(STDERR, "test");
+            fwrite(STDERR, 'test');
         })->catch(function (ParallelError $error) {
             $this->assertContains('test', $error->getMessage());
         });

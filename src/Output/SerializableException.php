@@ -25,7 +25,7 @@ class SerializableException
     public function asThrowable(): Throwable
     {
         /** @var Throwable $throwable */
-        $throwable = new $this->class($this->message . "\n\n" . $this->trace);
+        $throwable = new $this->class($this->message."\n\n".$this->trace);
 
         return $throwable;
     }
