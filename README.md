@@ -153,7 +153,7 @@ class MyTask extends Task
 $pool->add(new MyTask());
 ```
 
-### Check for platform support at runtime
+### Asynchronous support at runtime
 
 The `Pool` class has a static method `isSupported` you can call to check whether your platform is able to run asynchronous processes. You can use this check in combination with a `Task` to be able to easily run the same code synchronous or asynchronous.
 
