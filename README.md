@@ -37,31 +37,6 @@ foreach ($things as $thing) {
 $pool->wait();
 ```
 
-### Pool configuration
-
-You're free to create as many pools as you want, each pool has its own queue of processes it will handle.
-
-A pool is configurable by the developer:
-
-```php
-use Spatie\Async\Pool;
-
-$pool = Pool::create()
-
-// The maximum amount of processes which can run simultaneously.
-    ->concurrency(20)
-
-// The maximum amount of time a process may take to finish in seconds.
-    ->timeout(15)
-
-// Configure which autoloader sub processes should use.
-    ->autoload(__DIR__ . '/../../vendor/autoload.php')
-    
-// Configure how long the loop should sleep before re-checking the process statuses in milliseconds.
-    ->sleepTime(50000)
-;
-```
-
 ### Event listeners
 
 When creating asynchronous processes, you'll get an instance of `ParallelProcess` returned.
@@ -151,6 +126,31 @@ class MyTask extends Task
 
 // Add the task to the pool
 $pool->add(new MyTask());
+```
+
+### Pool configuration
+
+You're free to create as many pools as you want, each pool has its own queue of processes it will handle.
+
+A pool is configurable by the developer:
+
+```php
+use Spatie\Async\Pool;
+
+$pool = Pool::create()
+
+// The maximum amount of processes which can run simultaneously.
+    ->concurrency(20)
+
+// The maximum amount of time a process may take to finish in seconds.
+    ->timeout(15)
+
+// Configure which autoloader sub processes should use.
+    ->autoload(__DIR__ . '/../../vendor/autoload.php')
+    
+// Configure how long the loop should sleep before re-checking the process statuses in milliseconds.
+    ->sleepTime(50000)
+;
 ```
 
 ### Asynchronous support at runtime
