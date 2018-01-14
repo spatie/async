@@ -215,7 +215,7 @@ This is the moment your parent process can continue to execute.
 
 ### Comparison to other libraries
 
-We've written a blog post containing more information about use cases for this package, as well as making comparisons to other asynchronous PHP libraries like ReactPHP and Amp: [http://stitcher.io.test/blog/asynchronous-php](http://stitcher.io.test/blog/asynchronous-php).
+We've written a blog post containing more information about use cases for this package, as well as making comparisons to other asynchronous PHP libraries like ReactPHP and Amp: [http://stitcher.io/blog/asynchronous-php](http://stitcher.io/blog/asynchronous-php).
 
 ## Testing
 
