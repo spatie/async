@@ -1,18 +1,18 @@
 <?php
 
 use Spatie\Async\Pool;
-use Spatie\Async\ParallelProcess;
+use Spatie\Async\Process\Runnable;
 use Spatie\Async\Runtime\ParentRuntime;
 
 if (! function_exists('async')) {
     /**
      * @param \Spatie\Async\Task|callable $task
      *
-     * @return \Spatie\Async\ParallelProcess
+     * @return \Spatie\Async\Process\ParallelProcess
      */
-    function async($task): ParallelProcess
+    function async($task): Runnable
     {
-        return ParentRuntime::createChildProcess($task);
+        return ParentRuntime::createProcess($task);
     }
 }
 

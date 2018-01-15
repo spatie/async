@@ -3,7 +3,9 @@
 namespace Spatie\Async\Runtime;
 
 use Closure;
-use Spatie\Async\ParallelProcess;
+use Spatie\Async\Pool;
+use Spatie\Async\Process\Runnable;
+use Spatie\Async\Process\SynchronousProcess;
 use function Opis\Closure\serialize;
 use Opis\Closure\SerializableClosure;
 use function Opis\Closure\unserialize;
@@ -48,12 +50,16 @@ class ParentRuntime
     /**
      * @param \Spatie\Async\Task|callable $task
      *
-     * @return \Spatie\Async\ParallelProcess
+     * @return \Spatie\Async\Process\Runnable
      */
-    public static function createChildProcess($task): ParallelProcess
+    public static function createProcess($task): Runnable
     {
         if (! self::$isInitialised) {
             self::init();
+        }
+
+        if (! Pool::isSupported()) {
+            return SynchronousProcess::create($task, self::getId());
         }
 
         $process = new Process(implode(' ', [

@@ -1,56 +1,34 @@
 <?php
 
-namespace Spatie\Async;
+namespace Spatie\Async\Process;
 
+use Spatie\Async\Output\ParallelError;
 use Throwable;
 use Symfony\Component\Process\Process;
 use Spatie\Async\Output\SerializableException;
 
-class ParallelProcess
+class ParallelProcess implements Runnable
 {
     protected $process;
     protected $id;
     protected $pid;
-
-    protected $successCallbacks = [];
-    protected $errorCallbacks = [];
-    protected $timeoutCallbacks = [];
 
     protected $output;
     protected $errorOutput;
 
     protected $startTime;
 
-    public function __construct(Process $process, string $id)
+    use ProcessCallbacks;
+
+    public function __construct(Process $process, int $id)
     {
         $this->process = $process;
         $this->id = $id;
     }
 
-    public static function create(Process $process, string $id): self
+    public static function create(Process $process, int $id): self
     {
         return new self($process, $id);
-    }
-
-    public function then(callable $callback): self
-    {
-        $this->successCallbacks[] = $callback;
-
-        return $this;
-    }
-
-    public function catch(callable $callback): self
-    {
-        $this->errorCallbacks[] = $callback;
-
-        return $this;
-    }
-
-    public function timeout(callable $callback): self
-    {
-        $this->timeoutCallbacks[] = $callback;
-
-        return $this;
     }
 
     public function start(): self
@@ -121,12 +99,12 @@ class ParallelProcess
         return $this->process;
     }
 
-    public function getId(): string
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getPid(): ?string
+    public function getPid(): ?int
     {
         return $this->pid;
     }
@@ -134,43 +112,6 @@ class ParallelProcess
     public function getCurrentExecutionTime(): float
     {
         return microtime(true) - $this->startTime;
-    }
-
-    public function triggerSuccess()
-    {
-        if ($this->getErrorOutput()) {
-            $this->triggerError();
-
-            return;
-        }
-
-        $output = $this->getOutput();
-
-        foreach ($this->successCallbacks as $callback) {
-            call_user_func_array($callback, [$output]);
-        }
-
-        return $output;
-    }
-
-    public function triggerError()
-    {
-        $exception = $this->resolveErrorOutput();
-
-        foreach ($this->errorCallbacks as $callback) {
-            call_user_func_array($callback, [$exception]);
-        }
-
-        if (! $this->errorCallbacks) {
-            throw $exception;
-        }
-    }
-
-    public function triggerTimeout()
-    {
-        foreach ($this->timeoutCallbacks as $callback) {
-            call_user_func_array($callback, []);
-        }
     }
 
     protected function resolveErrorOutput(): Throwable
