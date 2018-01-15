@@ -49,7 +49,7 @@ class SynchronousProcess implements Runnable
                 $this->output = call_user_func($this->task);
             }
 
-            $this->executionTime = $startTime - microtime(true);
+            $this->executionTime = microtime(true) - $startTime;
         } catch (Throwable $throwable) {
             $this->errorOutput = $throwable;
         }
