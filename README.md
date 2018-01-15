@@ -172,29 +172,13 @@ $pool = Pool::create()
 ;
 ```
 
-### Asynchronous support at runtime
+### Synchronous fallback
 
-The `Pool` class has a static method `isSupported` you can call to check whether your platform is able to run asynchronous processes. You can use this check in combination with a `Task` to be able to easily run the same code synchronous or asynchronous.
+If the required extensions (`pctnl` and `posix`) are not installed in your current PHP runtime, the `Pool` will automatically fallback to synchronous execution of tasks.
 
-```php
-$pool = Pool::create();
+The `Pool` class has a static method `isSupported` you can call to check whether your platform is able to run asynchronous processes. 
 
-foreach ($things as $thing) {
-    $task = new MyTask($thing);
-    
-    if (! Pool::isSupported()) {
-        $task->execute();
-        
-        continue;
-    }
-
-    $pool->add($task);
-}
-
-if (Pool::isSupported()) {
-    $pool->wait();
-}
-``` 
+If you're using a `Task` to run processes, only the `execute` method of those tasks will be called when running in synchronous mode.
 
 ## Behind the curtains
 
