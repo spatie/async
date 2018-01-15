@@ -5,7 +5,7 @@ namespace Spatie\Async\Tests;
 use Error;
 use Spatie\Async\Pool;
 use PHPUnit\Framework\TestCase;
-use Spatie\Async\ParallelError;
+use Spatie\Async\Output\ParallelError;
 
 class ErrorHandlingTest extends TestCase
 {
