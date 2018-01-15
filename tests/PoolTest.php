@@ -3,10 +3,11 @@
 namespace Spatie\Async;
 
 use InvalidArgumentException;
+use Spatie\Async\Tests\InvokableClass;
+use Spatie\Async\Process\SynchronousProcess;
 use Spatie\Async\Tests\MyTask;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Tests\MyClass;
-use Spatie\Async\Tests\InvokableClass;
 use Spatie\Async\Tests\NonInvokableClass;
 
 class PoolTest extends TestCase
@@ -225,5 +226,36 @@ class PoolTest extends TestCase
         $pool = Pool::create();
 
         $pool->add(new NonInvokableClass());
+    }
+
+    public function it_can_run_synchronous_processes()
+    {
+        $pool = Pool::create();
+
+        foreach (range(1, 5) as $i) {
+            $pool->add(new SynchronousProcess(function () {
+                usleep(1000);
+
+                return 2;
+            }, $i))->then(function ($output) {
+                $this->assertEquals(2, $output);
+            });
+        }
+
+        $pool->wait();
+    }
+
+    /** @test */
+    public function it_will_automatically_schedule_synchronous_tasks_if_pcntl_not_supported()
+    {
+        Pool::$forceSynchronous = true;
+
+        $pool = Pool::create();
+
+        $pool[] = async(new MyTask())->then(function ($output) {
+            $this->assertEquals(0, $output);
+        });
+
+        await($pool);
     }
 }
