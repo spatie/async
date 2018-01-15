@@ -6,10 +6,13 @@ use ArrayAccess;
 use InvalidArgumentException;
 use Spatie\Async\Process\ParallelProcess;
 use Spatie\Async\Process\Runnable;
+use Spatie\Async\Process\SynchronousProcess;
 use Spatie\Async\Runtime\ParentRuntime;
 
 class Pool implements ArrayAccess
 {
+    public static $forceSynchronous = false;
+
     protected $concurrency = 20;
     protected $tasksPerProcess = 1;
     protected $timeout = 300;
@@ -51,7 +54,10 @@ class Pool implements ArrayAccess
 
     public static function isSupported(): bool
     {
-        return function_exists('pcntl_async_signals') && function_exists('posix_kill');
+        return
+            function_exists('pcntl_async_signals')
+            && function_exists('posix_kill')
+            && !Pool::$forceSynchronous;
     }
 
     public function concurrency(int $concurrency): self
@@ -123,6 +129,10 @@ class Pool implements ArrayAccess
             foreach ($this->inProgress as $process) {
                 if ($process->getCurrentExecutionTime() > $this->timeout) {
                     $this->markAsTimedOut($process);
+                }
+
+                if ($process instanceof SynchronousProcess) {
+                    $this->markAsFinished($process);
                 }
             }
 
@@ -209,6 +219,14 @@ class Pool implements ArrayAccess
     public function offsetUnset($offset)
     {
         // TODO
+    }
+
+    /**
+     * @return \Spatie\Async\Process\Runnable[]
+     */
+    public function getQueue(): array
+    {
+        return $this->queue;
     }
 
     /**
