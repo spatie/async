@@ -2,8 +2,8 @@
 
 namespace Spatie\Async;
 
-use Spatie\Async\Output\SerializableException;
 use Spatie\Async\Process\ParallelProcess;
+use Spatie\Async\Output\SerializableException;
 
 class PoolStatus
 {

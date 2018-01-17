@@ -248,7 +248,6 @@ class PoolTest extends TestCase
             });
         }
 
-
         $pool->wait();
 
         $stopwatchResult = $this->stopwatch->stop('test');
