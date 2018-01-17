@@ -43,11 +43,9 @@ class SynchronousProcess implements Runnable
         try {
             $startTime = microtime(true);
 
-            if ($this->task instanceof Task) {
-                $this->output = $this->task->execute();
-            } else {
-                $this->output = call_user_func($this->task);
-            }
+            $this->output = $this->task instanceof Task
+                ? $this->task->execute()
+                : call_user_func($this->task);
 
             $this->executionTime = microtime(true) - $startTime;
         } catch (Throwable $throwable) {

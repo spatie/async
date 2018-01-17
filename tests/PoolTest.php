@@ -6,9 +6,13 @@ use Spatie\Async\Process\SynchronousProcess;
 use Spatie\Async\Tests\MyTask;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Tests\MyClass;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 class PoolTest extends TestCase
 {
+    /** @var \Symfony\Component\Stopwatch\Stopwatch */
+    protected $stopwatch;
+
     protected function setUp()
     {
         parent::setUp();
@@ -18,6 +22,8 @@ class PoolTest extends TestCase
         if (! $supported) {
             $this->markTestSkipped('Extensions `posix` and `pcntl` not supported.');
         }
+
+        $this->stopwatch = new Stopwatch();
     }
 
     /** @test */
@@ -25,7 +31,7 @@ class PoolTest extends TestCase
     {
         $pool = Pool::create();
 
-        $startTime = microtime(true);
+        $this->stopwatch->start('test');
 
         foreach (range(1, 5) as $i) {
             $pool->add(function () {
@@ -35,11 +41,9 @@ class PoolTest extends TestCase
 
         $pool->wait();
 
-        $endTime = microtime(true);
+        $stopwatchResult = $this->stopwatch->stop('test');
 
-        $executionTime = $endTime - $startTime;
-
-        $this->assertLessThan(0.2, $executionTime, "Execution time was {$executionTime}, expected less than 0.2.\n".(string) $pool->status());
+        $this->assertLessThan(200, $stopwatchResult->getDuration(), "Execution time was {$stopwatchResult->getDuration()}, expected less than 0.2.\n".(string) $pool->status());
     }
 
     /** @test */
@@ -208,9 +212,11 @@ class PoolTest extends TestCase
     {
         $pool = Pool::create();
 
-        foreach (range(1, 5) as $i) {
+        $this->stopwatch->start('test');
+
+        foreach (range(1, 3) as $i) {
             $pool->add(new SynchronousProcess(function () {
-                usleep(1000);
+                sleep(1);
 
                 return 2;
             }, $i))->then(function ($output) {
@@ -218,7 +224,12 @@ class PoolTest extends TestCase
             });
         }
 
+
         $pool->wait();
+
+        $stopwatchResult = $this->stopwatch->stop('test');
+
+        $this->assertGreaterThan(3000, $stopwatchResult->getDuration(), "Execution time was {$stopwatchResult->getDuration()}, expected less than 3000.\n".(string) $pool->status());
     }
 
     /** @test */
