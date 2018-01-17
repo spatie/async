@@ -2,8 +2,8 @@
 
 namespace Spatie\Async\Process;
 
-use Spatie\Async\Task;
 use Throwable;
+use Spatie\Async\Task;
 
 class SynchronousProcess implements Runnable
 {
@@ -55,7 +55,6 @@ class SynchronousProcess implements Runnable
 
     public function stop()
     {
-        return null;
     }
 
     public function getOutput()

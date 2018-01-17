@@ -2,8 +2,8 @@
 
 namespace Spatie\Async\Process;
 
-use Spatie\Async\Output\ParallelError;
 use Throwable;
+use Spatie\Async\Output\ParallelError;
 use Symfony\Component\Process\Process;
 use Spatie\Async\Output\SerializableException;
 

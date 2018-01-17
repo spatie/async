@@ -3,10 +3,10 @@
 namespace Spatie\Async;
 
 use ArrayAccess;
-use Spatie\Async\Process\ParallelProcess;
 use Spatie\Async\Process\Runnable;
-use Spatie\Async\Process\SynchronousProcess;
 use Spatie\Async\Runtime\ParentRuntime;
+use Spatie\Async\Process\ParallelProcess;
+use Spatie\Async\Process\SynchronousProcess;
 
 class Pool implements ArrayAccess
 {
@@ -56,7 +56,7 @@ class Pool implements ArrayAccess
         return
             function_exists('pcntl_async_signals')
             && function_exists('posix_kill')
-            && !Pool::$forceSynchronous;
+            && ! self::$forceSynchronous;
     }
 
     public function concurrency(int $concurrency): self

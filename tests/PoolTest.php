@@ -2,11 +2,11 @@
 
 namespace Spatie\Async;
 
-use Spatie\Async\Process\SynchronousProcess;
 use Spatie\Async\Tests\MyTask;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Tests\MyClass;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Spatie\Async\Process\SynchronousProcess;
 
 class PoolTest extends TestCase
 {
@@ -223,7 +223,6 @@ class PoolTest extends TestCase
                 $this->assertEquals(2, $output);
             });
         }
-
 
         $pool->wait();
 
