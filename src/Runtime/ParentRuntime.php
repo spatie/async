@@ -10,6 +10,7 @@ use function Opis\Closure\serialize;
 use Opis\Closure\SerializableClosure;
 use function Opis\Closure\unserialize;
 use Symfony\Component\Process\Process;
+use Spatie\Async\Process\ParallelProcess;
 
 class ParentRuntime
 {
