@@ -8,9 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Spatie\Async\Tests\MyClass;
 use Spatie\Async\Tests\InvokableClass;
 use Spatie\Async\Tests\NonInvokableClass;
+use Symfony\Component\Stopwatch\Stopwatch;
+use Spatie\Async\Process\SynchronousProcess;
 
 class PoolTest extends TestCase
 {
+    /** @var \Symfony\Component\Stopwatch\Stopwatch */
+    protected $stopwatch;
+
     protected function setUp()
     {
         parent::setUp();
@@ -20,6 +25,8 @@ class PoolTest extends TestCase
         if (! $supported) {
             $this->markTestSkipped('Extensions `posix` and `pcntl` not supported.');
         }
+
+        $this->stopwatch = new Stopwatch();
     }
 
     /** @test */
@@ -27,7 +34,7 @@ class PoolTest extends TestCase
     {
         $pool = Pool::create();
 
-        $startTime = microtime(true);
+        $this->stopwatch->start('test');
 
         foreach (range(1, 5) as $i) {
             $pool->add(function () {
@@ -37,11 +44,9 @@ class PoolTest extends TestCase
 
         $pool->wait();
 
-        $endTime = microtime(true);
+        $stopwatchResult = $this->stopwatch->stop('test');
 
-        $executionTime = $endTime - $startTime;
-
-        $this->assertLessThan(0.2, $executionTime, "Execution time was {$executionTime}, expected less than 0.2.\n".(string) $pool->status());
+        $this->assertLessThan(400, $stopwatchResult->getDuration(), "Execution time was {$stopwatchResult->getDuration()}, expected less than 400.\n".(string) $pool->status());
     }
 
     /** @test */
@@ -225,5 +230,42 @@ class PoolTest extends TestCase
         $pool = Pool::create();
 
         $pool->add(new NonInvokableClass());
+    }
+
+    public function it_can_run_synchronous_processes()
+    {
+        $pool = Pool::create();
+
+        $this->stopwatch->start('test');
+
+        foreach (range(1, 3) as $i) {
+            $pool->add(new SynchronousProcess(function () {
+                sleep(1);
+
+                return 2;
+            }, $i))->then(function ($output) {
+                $this->assertEquals(2, $output);
+            });
+        }
+
+        $pool->wait();
+
+        $stopwatchResult = $this->stopwatch->stop('test');
+
+        $this->assertGreaterThan(3000, $stopwatchResult->getDuration(), "Execution time was {$stopwatchResult->getDuration()}, expected less than 3000.\n".(string) $pool->status());
+    }
+
+    /** @test */
+    public function it_will_automatically_schedule_synchronous_tasks_if_pcntl_not_supported()
+    {
+        Pool::$forceSynchronous = true;
+
+        $pool = Pool::create();
+
+        $pool[] = async(new MyTask())->then(function ($output) {
+            $this->assertEquals(0, $output);
+        });
+
+        await($pool);
     }
 }

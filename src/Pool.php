@@ -4,28 +4,33 @@ namespace Spatie\Async;
 
 use ArrayAccess;
 use InvalidArgumentException;
+use Spatie\Async\Process\Runnable;
 use Spatie\Async\Runtime\ParentRuntime;
+use Spatie\Async\Process\ParallelProcess;
+use Spatie\Async\Process\SynchronousProcess;
 
 class Pool implements ArrayAccess
 {
+    public static $forceSynchronous = false;
+
     protected $concurrency = 20;
     protected $tasksPerProcess = 1;
     protected $timeout = 300;
     protected $sleepTime = 50000;
 
-    /** @var \Spatie\Async\ParallelProcess[] */
+    /** @var \Spatie\Async\Process\Runnable[] */
     protected $queue = [];
 
-    /** @var \Spatie\Async\ParallelProcess[] */
+    /** @var \Spatie\Async\Process\Runnable[] */
     protected $inProgress = [];
 
-    /** @var \Spatie\Async\ParallelProcess[] */
+    /** @var \Spatie\Async\Process\Runnable[] */
     protected $finished = [];
 
-    /** @var \Spatie\Async\ParallelProcess[] */
+    /** @var \Spatie\Async\Process\Runnable[] */
     protected $failed = [];
 
-    /** @var \Spatie\Async\ParallelProcess[] */
+    /** @var \Spatie\Async\Process\Runnable[] */
     protected $timeouts = [];
 
     protected $results = [];
@@ -49,7 +54,10 @@ class Pool implements ArrayAccess
 
     public static function isSupported(): bool
     {
-        return function_exists('pcntl_async_signals') && function_exists('posix_kill');
+        return
+            function_exists('pcntl_async_signals')
+            && function_exists('posix_kill')
+            && ! self::$forceSynchronous;
     }
 
     public function concurrency(int $concurrency): self
@@ -96,18 +104,18 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @param \Spatie\Async\ParallelProcess|callable $process
+     * @param \Spatie\Async\Process\Runnable|callable $process
      *
-     * @return \Spatie\Async\ParallelProcess
+     * @return \Spatie\Async\Process\Runnable
      */
-    public function add($process): ParallelProcess
+    public function add($process): Runnable
     {
-        if (! is_callable($process) && ! $process instanceof ParallelProcess) {
+        if (! is_callable($process) && ! $process instanceof Runnable) {
             throw new InvalidArgumentException('The process passed to Pool::add should be callable.');
         }
 
-        if (! $process instanceof ParallelProcess) {
-            $process = ParentRuntime::createChildProcess($process);
+        if (! $process instanceof Runnable) {
+            $process = ParentRuntime::createProcess($process);
         }
 
         $this->putInQueue($process);
@@ -122,6 +130,10 @@ class Pool implements ArrayAccess
                 if ($process->getCurrentExecutionTime() > $this->timeout) {
                     $this->markAsTimedOut($process);
                 }
+
+                if ($process instanceof SynchronousProcess) {
+                    $this->markAsFinished($process);
+                }
             }
 
             if (! $this->inProgress) {
@@ -134,16 +146,18 @@ class Pool implements ArrayAccess
         return $this->results;
     }
 
-    public function putInQueue(ParallelProcess $process)
+    public function putInQueue(Runnable $process)
     {
         $this->queue[$process->getId()] = $process;
 
         $this->notify();
     }
 
-    public function putInProgress(ParallelProcess $process)
+    public function putInProgress(Runnable $process)
     {
-        $process->getProcess()->setTimeout($this->timeout);
+        if ($process instanceof ParallelProcess) {
+            $process->getProcess()->setTimeout($this->timeout);
+        }
 
         $process->start();
 
@@ -152,7 +166,7 @@ class Pool implements ArrayAccess
         $this->inProgress[$process->getPid()] = $process;
     }
 
-    public function markAsFinished(ParallelProcess $process)
+    public function markAsFinished(Runnable $process)
     {
         unset($this->inProgress[$process->getPid()]);
 
@@ -163,7 +177,7 @@ class Pool implements ArrayAccess
         $this->finished[$process->getPid()] = $process;
     }
 
-    public function markAsTimedOut(ParallelProcess $process)
+    public function markAsTimedOut(Runnable $process)
     {
         unset($this->inProgress[$process->getPid()]);
 
@@ -174,7 +188,7 @@ class Pool implements ArrayAccess
         $this->timeouts[$process->getPid()] = $process;
     }
 
-    public function markAsFailed(ParallelProcess $process)
+    public function markAsFailed(Runnable $process)
     {
         unset($this->inProgress[$process->getPid()]);
 
@@ -208,7 +222,15 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\ParallelProcess[]
+     * @return \Spatie\Async\Process\Runnable[]
+     */
+    public function getQueue(): array
+    {
+        return $this->queue;
+    }
+
+    /**
+     * @return \Spatie\Async\Process\Runnable[]
      */
     public function getFinished(): array
     {
@@ -216,7 +238,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\ParallelProcess[]
+     * @return \Spatie\Async\Process\Runnable[]
      */
     public function getFailed(): array
     {
@@ -224,7 +246,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\ParallelProcess[]
+     * @return \Spatie\Async\Process\Runnable[]
      */
     public function getTimeouts(): array
     {

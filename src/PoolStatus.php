@@ -2,6 +2,7 @@
 
 namespace Spatie\Async;
 
+use Spatie\Async\Process\ParallelProcess;
 use Spatie\Async\Output\SerializableException;
 
 class PoolStatus
@@ -28,11 +29,14 @@ class PoolStatus
 
     protected function summaryToString(): string
     {
+        $queue = $this->pool->getQueue();
         $finished = $this->pool->getFinished();
         $failed = $this->pool->getFailed();
         $timeouts = $this->pool->getTimeouts();
 
-        return 'finished: '.count($finished)
+        return
+            'queue: '.count($queue)
+            .' - finished: '.count($finished)
             .' - failed: '.count($failed)
             .' - timeout: '.count($timeouts);
     }
