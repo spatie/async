@@ -46,7 +46,7 @@ class PoolTest extends TestCase
 
         $stopwatchResult = $this->stopwatch->stop('test');
 
-        $this->assertLessThan(200, $stopwatchResult->getDuration(), "Execution time was {$stopwatchResult->getDuration()}, expected less than 0.2.\n".(string) $pool->status());
+        $this->assertLessThan(400, $stopwatchResult->getDuration(), "Execution time was {$stopwatchResult->getDuration()}, expected less than 400.\n".(string) $pool->status());
     }
 
     /** @test */
