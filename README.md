@@ -118,7 +118,7 @@ class MyTask extends Task
         // Setup eg. dependency container, load config,...
     }
 
-    public function execute()
+    public function run()
     {
         // Do the real work here.
     }
@@ -178,7 +178,7 @@ If the required extensions (`pctnl` and `posix`) are not installed in your curre
 
 The `Pool` class has a static method `isSupported` you can call to check whether your platform is able to run asynchronous processes. 
 
-If you're using a `Task` to run processes, only the `execute` method of those tasks will be called when running in synchronous mode.
+If you're using a `Task` to run processes, only the `run` method of those tasks will be called when running in synchronous mode.
 
 ## Behind the curtains
 

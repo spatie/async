@@ -13,7 +13,7 @@ class MyTask extends Task
         $this->i = 2;
     }
 
-    public function execute()
+    public function run()
     {
         return $this->i;
     }
