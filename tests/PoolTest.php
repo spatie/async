@@ -3,10 +3,10 @@
 namespace Spatie\Async;
 
 use InvalidArgumentException;
-use Spatie\Async\Tests\InvokableClass;
 use Spatie\Async\Tests\MyTask;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Tests\MyClass;
+use Spatie\Async\Tests\InvokableClass;
 use Spatie\Async\Tests\NonInvokableClass;
 
 class PoolTest extends TestCase

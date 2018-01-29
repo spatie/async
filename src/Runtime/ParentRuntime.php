@@ -3,7 +3,6 @@
 namespace Spatie\Async\Runtime;
 
 use Closure;
-use Spatie\Async\Task;
 use Spatie\Async\ParallelProcess;
 use function Opis\Closure\serialize;
 use Opis\Closure\SerializableClosure;
