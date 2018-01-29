@@ -3,6 +3,7 @@
 namespace Spatie\Async;
 
 use ArrayAccess;
+use InvalidArgumentException;
 use Spatie\Async\Runtime\ParentRuntime;
 
 class Pool implements ArrayAccess
@@ -101,6 +102,10 @@ class Pool implements ArrayAccess
      */
     public function add($process): ParallelProcess
     {
+        if (! is_callable($process) && ! $process instanceof ParallelProcess) {
+            throw new InvalidArgumentException('The process passed to Pool::add should be callable.');
+        }
+
         if (! $process instanceof ParallelProcess) {
             $process = ParentRuntime::createChildProcess($process);
         }

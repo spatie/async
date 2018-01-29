@@ -128,6 +128,25 @@ class MyTask extends Task
 $pool->add(new MyTask());
 ```
 
+#### Simple tasks
+
+If you want to encapsulate the logic of your task, but don't want to create a full blown `Task` object,
+you may also pass an invokable object to the `Pool`.
+
+```php
+class InvokableClass
+{
+    // ...
+
+    public function __invoke()
+    {
+        // ...
+    }
+}
+
+$pool->add(new InvokableClass(/* ... */));
+```
+
 ### Pool configuration
 
 You're free to create as many pools as you want, each pool has its own queue of processes it will handle.

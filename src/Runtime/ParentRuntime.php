@@ -2,6 +2,7 @@
 
 namespace Spatie\Async\Runtime;
 
+use Closure;
 use Spatie\Async\Task;
 use Spatie\Async\ParallelProcess;
 use function Opis\Closure\serialize;
@@ -73,7 +74,7 @@ class ParentRuntime
      */
     public static function encodeTask($task): string
     {
-        if (! $task instanceof Task) {
+        if ($task instanceof Closure) {
             $task = new SerializableClosure($task);
         }
 

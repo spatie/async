@@ -2,9 +2,12 @@
 
 namespace Spatie\Async;
 
+use InvalidArgumentException;
+use Spatie\Async\Tests\InvokableClass;
 use Spatie\Async\Tests\MyTask;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Tests\MyClass;
+use Spatie\Async\Tests\NonInvokableClass;
 
 class PoolTest extends TestCase
 {
@@ -200,5 +203,27 @@ class PoolTest extends TestCase
     public function it_can_check_for_asynchronous_support()
     {
         $this->assertTrue(Pool::isSupported());
+    }
+
+    /** @test */
+    public function it_can_run_invokable_classes()
+    {
+        $pool = Pool::create();
+
+        $pool->add(new InvokableClass());
+
+        $results = await($pool);
+
+        $this->assertEquals(2, $results[0]);
+    }
+
+    /** @test */
+    public function it_reports_error_for_non_invokable_classes()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $pool = Pool::create();
+
+        $pool->add(new NonInvokableClass());
     }
 }
