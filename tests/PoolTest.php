@@ -267,5 +267,25 @@ class PoolTest extends TestCase
         });
 
         await($pool);
+
+        Pool::$forceSynchronous = false;
+    }
+
+    /** @test */
+    public function it_takes_an_intermediate_callback()
+    {
+        $pool = Pool::create();
+
+        $pool[] = async(function () {
+            return 1;
+        });
+
+        $isIntermediateCallbackCalled = false;
+
+        $pool->wait(function (Pool $pool) use (&$isIntermediateCallbackCalled) {
+            $isIntermediateCallbackCalled = true;
+        });
+
+        $this->assertTrue($isIntermediateCallbackCalled);
     }
 }

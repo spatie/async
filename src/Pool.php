@@ -123,7 +123,7 @@ class Pool implements ArrayAccess
         return $process;
     }
 
-    public function wait(): array
+    public function wait(?callable $intermediateCallback = null): array
     {
         while ($this->inProgress) {
             foreach ($this->inProgress as $process) {
@@ -138,6 +138,10 @@ class Pool implements ArrayAccess
 
             if (! $this->inProgress) {
                 break;
+            }
+
+            if ($intermediateCallback) {
+                call_user_func_array($intermediateCallback, [$this]);
             }
 
             usleep($this->sleepTime);
@@ -227,6 +231,14 @@ class Pool implements ArrayAccess
     public function getQueue(): array
     {
         return $this->queue;
+    }
+
+    /**
+     * @return \Spatie\Async\Process\Runnable[]
+     */
+    public function getInProgress(): array
+    {
+        return $this->inProgress;
     }
 
     /**
