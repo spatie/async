@@ -174,7 +174,7 @@ $pool = Pool::create()
 
 ### Synchronous fallback
 
-If the required extensions (`pctnl` and `posix`) are not installed in your current PHP runtime, the `Pool` will automatically fallback to synchronous execution of tasks.
+If the required extensions (`pcntl` and `posix`) are not installed in your current PHP runtime, the `Pool` will automatically fallback to synchronous execution of tasks.
 
 The `Pool` class has a static method `isSupported` you can call to check whether your platform is able to run asynchronous processes. 
 
