@@ -3,6 +3,7 @@
 namespace Spatie\Async\Tests;
 
 use Error;
+use ParseError;
 use Spatie\Async\Pool;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Output\ParallelError;
@@ -82,6 +83,20 @@ class ErrorHandlingTest extends TestCase
             fwrite(STDERR, 'test');
         })->catch(function (ParallelError $error) {
             $this->assertContains('test', $error->getMessage());
+        });
+
+        $pool->wait();
+    }
+
+    /** @test */
+    public function deep_syntax_errors_are_thrown()
+    {
+        $pool = Pool::create();
+
+        $pool->add(function () {
+            new ClassWithSyntaxError();
+        })->catch(function ($error) {
+            $this->assertInstanceOf(ParseError::class, $error);
         });
 
         $pool->wait();
