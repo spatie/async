@@ -17,6 +17,7 @@
     ],
     "require": {
         "php": "^7.1",
+        "ext-pcntl": "*",
         "opis/closure": "^3.0",
         "symfony/process": "^3.3 || ^4.0"
     },
