@@ -7,7 +7,7 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/async.svg?style=flat-square)](https://packagist.org/packages/spatie/async)
 
 This library provides a small and easy wrapper around PHP's PCNTL extension.
-It allows for running difference processes in parallel, with an easy-to-use API.
+It allows running of different processes in parallel, with an easy-to-use API.
 
 ## Installation
 
