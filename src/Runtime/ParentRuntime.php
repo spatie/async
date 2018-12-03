@@ -81,7 +81,10 @@ class ParentRuntime
     public static function encodeTask($task): string
     {
         if ($task instanceof Closure) {
+            $securityProvider = SerializableClosure::getSecurityProvider();
+            SerializableClosure::removeSecurityProvider();
             $task = new SerializableClosure($task);
+            SerializableClosure::addSecurityProvider($securityProvider);
         }
 
         return base64_encode(serialize($task));
