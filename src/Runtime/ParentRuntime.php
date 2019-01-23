@@ -29,12 +29,17 @@ class ParentRuntime
 
     public static function init(string $autoloader = null)
     {
+		if (!defined('_DS'))
+			define('_DS', DIRECTORY_SEPARATOR);
+		
         if (! $autoloader) {
             $existingAutoloaderFiles = array_filter([
-                __DIR__.'/../../../../autoload.php',
-                __DIR__.'/../../../autoload.php',
-                __DIR__.'/../../vendor/autoload.php',
-                __DIR__.'/../../../vendor/autoload.php',
+                __DIR__._DS.'..'._DS.'..'._DS.'..'._DS.'..'._DS.'autoload.php',
+                __DIR__._DS.'..'._DS.'..'._DS.'..'._DS.'autoload.php',
+                __DIR__._DS.'..'._DS.'..'._DS.'vendor'._DS.'autoload.php',
+                __DIR__._DS.'..'._DS.'vendor'._DS.'autoload.php',
+                __DIR__._DS.'vendor'._DS.'autoload.php',
+                __DIR__._DS.'..'._DS.'..'._DS.'..'._DS.'vendor'._DS.'autoload.php',
             ], function (string $path) {
                 return file_exists($path);
             });
@@ -43,7 +48,7 @@ class ParentRuntime
         }
 
         self::$autoloader = $autoloader;
-        self::$childProcessScript = __DIR__.'/ChildRuntime.php';
+        self::$childProcessScript = __DIR__._DS.'ChildRuntime.php';
 
         self::$isInitialised = true;
     }
@@ -59,12 +64,12 @@ class ParentRuntime
             self::init();
         }
 
-        if (! Pool::isSupported()) {
-            return SynchronousProcess::create($task, self::getId());
-        }
+        //if (! Pool::isSupported()) {
+        //    return SynchronousProcess::create($task, self::getId());
+        //}
 
         $process = new Process(implode(' ', [
-            'exec php',
+            'php',
             self::$childProcessScript,
             self::$autoloader,
             self::encodeTask($task),

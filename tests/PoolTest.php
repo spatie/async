@@ -20,12 +20,6 @@ class PoolTest extends TestCase
     {
         parent::setUp();
 
-        $supported = Pool::isSupported();
-
-        if (! $supported) {
-            $this->markTestSkipped('Extensions `posix` and `pcntl` not supported.');
-        }
-
         $this->stopwatch = new Stopwatch();
     }
 
@@ -46,7 +40,12 @@ class PoolTest extends TestCase
 
         $stopwatchResult = $this->stopwatch->stop('test');
 
-        $this->assertLessThan(400, $stopwatchResult->getDuration(), "Execution time was {$stopwatchResult->getDuration()}, expected less than 400.\n".(string) $pool->status());
+		if ($pool->isSupported())
+			$expect = 400;
+		else 
+			$expect = 600;
+		
+        $this->assertLessThan($expect, $stopwatchResult->getDuration(), "Execution time was {$stopwatchResult->getDuration()}, expected less than {$expect}.\n".(string) $pool->status());
     }
 
     /** @test */
@@ -207,7 +206,10 @@ class PoolTest extends TestCase
     /** @test */
     public function it_can_check_for_asynchronous_support()
     {
-        $this->assertTrue(Pool::isSupported());
+		if ('\\' === \DIRECTORY_SEPARATOR)
+			$this->assertFalse(Pool::isSupported());
+		else
+			$this->assertTrue(Pool::isSupported());
     }
 
     /** @test */
@@ -263,7 +265,7 @@ class PoolTest extends TestCase
         $pool = Pool::create();
 
         $pool[] = async(new MyTask())->then(function ($output) {
-            $this->assertEquals(0, $output);
+            $this->assertEquals(2, $output);
         });
 
         await($pool);

@@ -12,9 +12,11 @@ class ChildRuntimeTest extends TestCase
     /** @test */
     public function it_can_run()
     {
-        $bootstrap = __DIR__.'/../src/Runtime/ChildRuntime.php';
+		if (!defined('_DS'))
+			define('_DS', DIRECTORY_SEPARATOR);
+        $bootstrap = __DIR__._DS.'..'._DS.'src'._DS.'Runtime'._DS.'ChildRuntime.php';
 
-        $autoloader = __DIR__.'/../vendor/autoload.php';
+        $autoloader = __DIR__._DS.'..'._DS.'vendor'._DS.'autoload.php';
 
         $serializedClosure = base64_encode(serialize(new SerializableClosure(function () {
             echo 'child';

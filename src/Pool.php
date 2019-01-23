@@ -36,10 +36,12 @@ class Pool implements ArrayAccess
     protected $results = [];
 
     protected $status;
+    protected static $pcntl = false;
 
     public function __construct()
     {
-        $this->registerListener();
+		if ($this->isSupported())
+			$this->registerListener();
 
         $this->status = new PoolStatus($this);
     }
@@ -54,10 +56,11 @@ class Pool implements ArrayAccess
 
     public static function isSupported(): bool
     {
-        return
-            function_exists('pcntl_async_signals')
+		self::$pcntl = function_exists('pcntl_async_signals')
             && function_exists('posix_kill')
             && ! self::$forceSynchronous;
+        return self::$pcntl;
+            
     }
 
     public function concurrency(int $concurrency): self
@@ -131,9 +134,13 @@ class Pool implements ArrayAccess
                     $this->markAsTimedOut($process);
                 }
 
-                if ($process instanceof SynchronousProcess) {
-                    $this->markAsFinished($process);
-                }
+				if (! self::$pcntl) {
+					if ($process->isSuccessful()) {
+						$this->markAsFinished($process);
+					} elseif (! $process->isRunning() && $process->isTerminated()) {
+						$this->markAsFailed($process);
+					}
+				}
             }
 
             if (! $this->inProgress) {
