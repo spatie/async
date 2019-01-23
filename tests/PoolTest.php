@@ -260,7 +260,7 @@ class PoolTest extends TestCase
     /** @test */
     public function it_will_automatically_schedule_synchronous_tasks_if_pcntl_not_supported()
     {
-        Pool::$forceSynchronous = true;
+        //Pool::$forceSynchronous = true;
 
         $pool = Pool::create();
 
@@ -270,7 +270,7 @@ class PoolTest extends TestCase
 
         await($pool);
 
-        Pool::$forceSynchronous = false;
+        //Pool::$forceSynchronous = false;
     }
 
     /** @test */
