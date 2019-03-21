@@ -25,6 +25,10 @@
         "phpunit/phpunit": "^6.0",
         "symfony/stopwatch": "^4.0"
     },
+    "suggest": {
+        "ext-pcntl": "Required to use async processes",
+        "ext-posix": "Required to use async processes"
+    },
     "autoload": {
         "files": [
             "src/helpers.php"
