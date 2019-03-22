@@ -3,6 +3,7 @@
 namespace Spatie\Async\Tests;
 
 use Error;
+use Exception;
 use ParseError;
 use Spatie\Async\Pool;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +26,43 @@ class ErrorHandlingTest extends TestCase
 
         $pool->wait();
 
+        $this->assertCount(5, $pool->getFailed(), (string) $pool->status());
+    }
+
+    /** @test */
+    public function it_can_handle_typed_exceptions_via_catch_callback()
+    {
+        $pool = Pool::create();
+
+        $myExceptionCount = 0;
+
+        $otherExceptionCount = 0;
+
+        $exceptionCount = 0;
+
+        foreach (range(1, 5) as $i) {
+            $pool
+                ->add(function () {
+                    throw new MyException('test');
+                })
+                ->catch(function (MyException $e) use (&$myExceptionCount) {
+                    $this->assertRegExp('/test/', $e->getMessage());
+
+                    $myExceptionCount += 1;
+                })
+                ->catch(function (OtherException $e) use (&$otherExceptionCount) {
+                    $otherExceptionCount += 1;
+                })
+                ->catch(function (Exception $e) use (&$exceptionCount) {
+                    $exceptionCount += 1;
+                });
+        }
+
+        $pool->wait();
+
+        $this->assertEquals(5, $myExceptionCount);
+        $this->assertEquals(0, $otherExceptionCount);
+        $this->assertEquals(0, $exceptionCount);
         $this->assertCount(5, $pool->getFailed(), (string) $pool->status());
     }
 

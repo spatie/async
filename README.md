@@ -101,6 +101,39 @@ If there's no error handler added, the error will be thrown in the parent proces
 If the child process would unexpectedly stop without throwing an `Throwable`, 
 the output written to `stderr` will be wrapped and thrown as `Spatie\Async\ParallelError` in the parent process.
 
+### Catching exceptions by type
+
+By type hinting the `catch` functions, you can provide multiple error handlers, 
+each for individual types of errors.
+
+```php
+$pool
+    ->add(function () {
+        throw new MyException('test');
+    })
+    ->catch(function (MyException $e) {
+        // Handle `MyException`
+    })
+    ->catch(function (OtherException $e) {
+        // Handle `OtherException`
+    });
+```
+
+Note that as soon as an exception is handled, it won't trigger any other handlers
+
+```php
+$pool
+    ->add(function () {
+        throw new MyException('test');
+    })
+    ->catch(function (MyException $e) {
+        // This one is triggerd when `MyException` is thrown
+    })
+    ->catch(function (Exception $e) {
+        // This one is not triggerd, even though `MyException` extends `Exception`
+    });
+```
+
 ### Working with tasks
 
 Besides using closures, you can also work with a `Task`. 
