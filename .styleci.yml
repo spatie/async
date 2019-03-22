@@ -5,4 +5,4 @@ disabled:
 
 finder:
   exclude:
-    - "tests/ClassWithSyntaxError.php"
+    - "ClassWithSyntaxError.php"
