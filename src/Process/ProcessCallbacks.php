@@ -2,8 +2,8 @@
 
 namespace Spatie\Async\Process;
 
-use ReflectionFunction;
 use Throwable;
+use ReflectionFunction;
 
 trait ProcessCallbacks
 {
@@ -58,7 +58,7 @@ trait ProcessCallbacks
         }
 
         foreach ($this->errorCallbacks as $callback) {
-            if (!$this->isAllowedThrowableType($exception, $callback)) {
+            if (! $this->isAllowedThrowableType($exception, $callback)) {
                 continue;
             }
 
