@@ -4,5 +4,5 @@ disabled:
   - single_class_element_per_statement
 
 finder:
-  exclude:
-    - "ClassWithSyntaxError.php"
+  not-path:
+    - "tests/ClassWithSyntaxError.php"
