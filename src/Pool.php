@@ -39,7 +39,9 @@ class Pool implements ArrayAccess
 
     public function __construct()
     {
-        $this->registerListener();
+        if (static::isSupported()) {
+            $this->registerListener();
+        }
 
         $this->status = new PoolStatus($this);
     }
