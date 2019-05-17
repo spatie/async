@@ -2,7 +2,11 @@
 
 All notable changes to `async` will be documented in this file
 
-# 1.0.1 - 2019-05-07
+## 1.0.1 - 2019-05-17
+
+- Synchronous execution time bugfix
+
+## 1.0.1 - 2019-05-07
 
 - Check on PCNTL support before registering listeners
 
