@@ -71,4 +71,9 @@ class SynchronousProcess implements Runnable
     {
         return $this->executionTime;
     }
+
+    protected function resolveErrorOutput(): Throwable
+    {
+        return $this->getErrorOutput();
+    }
 }

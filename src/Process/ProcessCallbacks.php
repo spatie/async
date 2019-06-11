@@ -68,6 +68,8 @@ trait ProcessCallbacks
         }
     }
 
+    abstract protected function resolveErrorOutput(): Throwable;
+
     public function triggerTimeout()
     {
         foreach ($this->timeoutCallbacks as $callback) {
