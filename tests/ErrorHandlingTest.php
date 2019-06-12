@@ -26,7 +26,7 @@ class ErrorHandlingTest extends TestCase
 
         $pool->wait();
 
-        $this->assertCount(5, $pool->getFailed(), (string)$pool->status());
+        $this->assertCount(5, $pool->getFailed(), (string) $pool->status());
     }
 
     /** @test */
@@ -63,7 +63,7 @@ class ErrorHandlingTest extends TestCase
         $this->assertEquals(5, $myExceptionCount);
         $this->assertEquals(0, $otherExceptionCount);
         $this->assertEquals(0, $exceptionCount);
-        $this->assertCount(5, $pool->getFailed(), (string)$pool->status());
+        $this->assertCount(5, $pool->getFailed(), (string) $pool->status());
     }
 
     /** @test */
@@ -150,7 +150,6 @@ class ErrorHandlingTest extends TestCase
         $pool->add(function () {
             throw new MyException('test');
         })->catch(function (MyException $e) {
-
             $this->assertRegExp('/test/', $e->getMessage());
         });
 
