@@ -24,7 +24,7 @@ class ChildRuntimeTest extends TestCase
             'php',
             $bootstrap,
             $autoloader,
-            $serializedClosure
+            $serializedClosure,
         ]);
 
         $process->start();
