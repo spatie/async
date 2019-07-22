@@ -20,7 +20,12 @@ class ChildRuntimeTest extends TestCase
             echo 'child';
         })));
 
-        $process = new Process("php {$bootstrap} {$autoloader} {$serializedClosure}");
+        $process = new Process([
+            'php',
+            $bootstrap,
+            $autoloader,
+            $serializedClosure,
+        ]);
 
         $process->start();
 
