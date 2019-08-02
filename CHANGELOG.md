@@ -2,6 +2,10 @@
 
 All notable changes to `async` will be documented in this file
 
+## 1.0.4 - 2019-08-02
+
+- Fix for `SynchronousProcess::resolveErrorOutput` (#73)
+
 ## 1.0.3 - 2019-07-22
 
 - Fix for Symfony Process argument deprecation
