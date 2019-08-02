@@ -139,4 +139,22 @@ class ErrorHandlingTest extends TestCase
 
         $pool->wait();
     }
+
+    /** @test */
+    public function it_can_handle_synchronous_exception()
+    {
+        Pool::$forceSynchronous = true;
+
+        $pool = Pool::create();
+
+        $pool->add(function () {
+            throw new MyException('test');
+        })->catch(function (MyException $e) {
+            $this->assertRegExp('/test/', $e->getMessage());
+        });
+
+        $pool->wait();
+
+        Pool::$forceSynchronous = false;
+    }
 }
