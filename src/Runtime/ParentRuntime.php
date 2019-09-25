@@ -69,7 +69,7 @@ class ParentRuntime
             self::$childProcessScript,
             self::$autoloader,
             self::encodeTask($task),
-            $outputLength
+            $outputLength,
         ]);
 
         return ParallelProcess::create($process, self::getId());
