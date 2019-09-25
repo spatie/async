@@ -50,10 +50,11 @@ class ParentRuntime
 
     /**
      * @param \Spatie\Async\Task|callable $task
+     * @param int|null $outputLength
      *
      * @return \Spatie\Async\Process\Runnable
      */
-    public static function createProcess($task): Runnable
+    public static function createProcess($task, $outputLength = null): Runnable
     {
         if (! self::$isInitialised) {
             self::init();
@@ -68,6 +69,7 @@ class ParentRuntime
             self::$childProcessScript,
             self::$autoloader,
             self::encodeTask($task),
+            $outputLength
         ]);
 
         return ParallelProcess::create($process, self::getId());
