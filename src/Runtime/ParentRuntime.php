@@ -54,7 +54,7 @@ class ParentRuntime
      *
      * @return \Spatie\Async\Process\Runnable
      */
-    public static function createProcess($task, $outputLength = null): Runnable
+    public static function createProcess($task, ?int $outputLength = null): Runnable
     {
         if (! self::$isInitialised) {
             self::init();
