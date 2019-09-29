@@ -2,13 +2,12 @@
 
 namespace Spatie\Async\Tests;
 
+use Spatie\Async\Pool;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Output\ParallelError;
-use Spatie\Async\Pool;
 
 class ContentLengthTest extends TestCase
 {
-
     /** @test */
     public function it_can_increase_max_content_length()
     {
@@ -18,11 +17,11 @@ class ContentLengthTest extends TestCase
 
         $pool->add(new MyTask(), $longerContentLength);
 
-        $this->assertContains('finished: 0', (string)$pool->status());
+        $this->assertContains('finished: 0', (string) $pool->status());
 
         await($pool);
 
-        $this->assertContains('finished: 1', (string)$pool->status());
+        $this->assertContains('finished: 1', (string) $pool->status());
     }
 
     /** @test */
@@ -34,13 +33,13 @@ class ContentLengthTest extends TestCase
 
         $pool->add(new MyTask(), $shorterContentLength);
 
-        $this->assertContains('finished: 0', (string)$pool->status());
+        $this->assertContains('finished: 0', (string) $pool->status());
 
         await($pool);
 
-        $this->assertContains('finished: 1', (string)$pool->status());
+        $this->assertContains('finished: 1', (string) $pool->status());
     }
-    
+
     /** @test */
     public function it_can_throws_error_with_increased_max_content_length()
     {
@@ -48,7 +47,9 @@ class ContentLengthTest extends TestCase
 
         $longerContentLength = 1024 * 100;
 
-        $pool->add(function () { return random_bytes(1024 * 1000); }, $longerContentLength)
+        $pool->add(function () {
+            return random_bytes(1024 * 1000);
+        }, $longerContentLength)
             ->catch(function (ParallelError $e) use ($longerContentLength) {
                 $message = "/The output returned by this child process is too large. The serialized output may only be $longerContentLength bytes long./";
                 $this->assertRegExp($message, $e->getMessage());
@@ -64,7 +65,9 @@ class ContentLengthTest extends TestCase
 
         $longerContentLength = 1024;
 
-        $pool->add(function () { return random_bytes(1024 * 100); }, $longerContentLength)
+        $pool->add(function () {
+            return random_bytes(1024 * 100);
+        }, $longerContentLength)
             ->catch(function (ParallelError $e) use ($longerContentLength) {
                 $message = "/The output returned by this child process is too large. The serialized output may only be $longerContentLength bytes long./";
                 $this->assertRegExp($message, $e->getMessage());
