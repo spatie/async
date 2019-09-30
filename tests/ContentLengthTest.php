@@ -41,7 +41,7 @@ class ContentLengthTest extends TestCase
     }
 
     /** @test */
-    public function it_can_throws_error_with_increased_max_content_length()
+    public function it_can_throw_error_with_increased_max_content_length()
     {
         $pool = Pool::create();
 
@@ -59,7 +59,7 @@ class ContentLengthTest extends TestCase
     }
 
     /** @test */
-    public function it_can_throws_error_with_decreased_max_content_length()
+    public function it_can_throw_error_with_decreased_max_content_length()
     {
         $pool = Pool::create();
 
