@@ -107,17 +107,18 @@ class Pool implements ArrayAccess
 
     /**
      * @param \Spatie\Async\Process\Runnable|callable $process
+     * @param int|null $outputLength
      *
      * @return \Spatie\Async\Process\Runnable
      */
-    public function add($process): Runnable
+    public function add($process, ?int $outputLength = null): Runnable
     {
         if (! is_callable($process) && ! $process instanceof Runnable) {
             throw new InvalidArgumentException('The process passed to Pool::add should be callable.');
         }
 
         if (! $process instanceof Runnable) {
-            $process = ParentRuntime::createProcess($process);
+            $process = ParentRuntime::createProcess($process, $outputLength);
         }
 
         $this->putInQueue($process);
