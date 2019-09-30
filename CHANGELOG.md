@@ -2,6 +2,10 @@
 
 All notable changes to `async` will be documented in this file
 
+## 1.1.0 - 2019-09-30
+
+- Make output length configurable (#86)
+
 ## 1.0.4 - 2019-08-02
 
 - Fix for `SynchronousProcess::resolveErrorOutput` (#73)
