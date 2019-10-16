@@ -137,6 +137,12 @@ class Pool implements ArrayAccess
                 if ($process instanceof SynchronousProcess) {
                     $this->markAsFinished($process);
                 }
+
+                /*
+                 * There are likely better solutions here, but basically, without this line, we enter a hang state if the output is sufficiently large (I'm assuming larger than the stdout buffer size).
+                 * So if we configure our pool to support large outputs, but don't actually attempt to read the output here, then the child process never exists, SIGCHILD never fires, and our pool never closes.
+                 */
+                $process->getOutput();
             }
 
             if (! $this->inProgress) {
