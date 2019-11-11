@@ -98,9 +98,9 @@ class PoolTest extends TestCase
         $notFoundError = null;
         $result = null;
 
+        // test with custom executable
         $pool = Pool::create()
                     ->executable($executable);
-
         $pool->add(function () {
             return true;
         })->then(function ($_result) use (&$result) {
@@ -109,14 +109,30 @@ class PoolTest extends TestCase
             $result = false;
             $notFoundError = $error->getMessage();
         });
-
         $pool->wait();
-
         $this->assertEquals(false, $result);
         $this->assertRegExp("%{$executable}%", $notFoundError);
 
-        // avoids errors in further tests
-        ParentRuntime::setExecutable('php');
+        // test with default executable (reset for further tests)
+        $pool = Pool::create()
+                    ->executable('php');
+        $pool->add(function () {
+            return 'reset';
+        })->then(function ($_result) use (&$result) {
+            $result = $_result;
+        });
+        $pool->wait();
+        $this->assertEquals('reset', $result);
+
+        // test with default executable
+        $pool = Pool::create();
+        $pool->add(function () {
+            return 'default';
+        })->then(function ($_result) use (&$result) {
+            $result = $_result;
+        });
+        $pool->wait();
+        $this->assertEquals('default', $result);
     }
 
     /** @test */
