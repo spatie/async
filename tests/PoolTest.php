@@ -102,9 +102,9 @@ class PoolTest extends TestCase
                     ->executable($executable);
 
         $pool->add(function () {
-            sleep(1);
-        })->then(function () use (&$result) {
-            $result = true;
+            return true;
+        })->then(function ($_result) use (&$result) {
+            $result = $_result;
         })->catch(function ($error) use (&$result, &$notFoundError) {
             $result = false;
             $notFoundError = $error->getMessage();
