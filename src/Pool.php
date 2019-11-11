@@ -90,6 +90,17 @@ class Pool implements ArrayAccess
         return $this;
     }
 
+    /**
+     * @param string $executable
+     * @return $this
+     */
+    public function executable(string $executable): self
+    {
+        ParentRuntime::setExecutable($executable);
+
+        return $this;
+    }
+
     public function notify()
     {
         if (count($this->inProgress) >= $this->concurrency) {

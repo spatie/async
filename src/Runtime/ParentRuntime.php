@@ -27,6 +27,9 @@ class ParentRuntime
 
     protected static $myPid = null;
 
+    /** @var string */
+    protected static $executable = 'php';
+
     public static function init(string $autoloader = null)
     {
         if (! $autoloader) {
@@ -65,7 +68,7 @@ class ParentRuntime
         }
 
         $process = new Process([
-            'php',
+            self::$executable,
             self::$childProcessScript,
             self::$autoloader,
             self::encodeTask($task),
@@ -103,5 +106,13 @@ class ParentRuntime
         self::$currentId += 1;
 
         return (string) self::$currentId.(string) self::$myPid;
+    }
+
+    /**
+     * @param string $executable
+     */
+    public static function setExecutable(string $executable): void
+    {
+        self::$executable = $executable;
     }
 }

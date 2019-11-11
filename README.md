@@ -202,6 +202,9 @@ $pool = Pool::create()
     
 // Configure how long the loop should sleep before re-checking the process statuses in milliseconds.
     ->sleepTime(50000)
+
+// The path to PHP executable for child runtime
+    ->executable('/opt/some/path/version-7.3/bin/php')
 ;
 ```
 

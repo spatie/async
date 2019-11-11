@@ -3,6 +3,7 @@
 namespace Spatie\Async;
 
 use InvalidArgumentException;
+use Spatie\Async\Runtime\ParentRuntime;
 use Spatie\Async\Tests\MyTask;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Tests\MyClass;
@@ -73,7 +74,7 @@ class PoolTest extends TestCase
     public function it_can_handle_timeout()
     {
         $pool = Pool::create()
-            ->timeout(1);
+                    ->timeout(1);
 
         $counter = 0;
 
@@ -88,6 +89,34 @@ class PoolTest extends TestCase
         $pool->wait();
 
         $this->assertEquals(5, $counter, (string) $pool->status());
+    }
+
+    /** @test */
+    public function it_can_handle_executable_configuration()
+    {
+        $executable = '/opt/path/that/can/never/exist/for/testing/bin/php';
+        $notFoundError = null;
+        $result = null;
+
+        $pool = Pool::create()
+                    ->executable($executable);
+
+        $pool->add(function () {
+            sleep(1);
+        })->then(function () use (&$result) {
+            $result = true;
+        })->catch(function ($error) use (&$result, &$notFoundError) {
+            $result = false;
+            $notFoundError = $error->getMessage();
+        });
+
+        $pool->wait();
+
+        $this->assertEquals(false, $result);
+        $this->assertRegExp("%{$executable}%", $notFoundError);
+
+        // avoids errors in further tests
+        ParentRuntime::setExecutable('php');
     }
 
     /** @test */
