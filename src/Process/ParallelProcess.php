@@ -64,6 +64,15 @@ class ParallelProcess implements Runnable
         return $this->process->isTerminated();
     }
 
+    /**
+     * Flush the process's stdout output buffer (it is then kept by Symfony's copy of stdout).
+     * Due to stdout output buffering, it is possible for a program to hang once it fills the buffer for stdout. At this point, the program wouldn't do anything else. By forcing a check on the program's output, we can ensure that we actually read through the output buffer.
+     */
+    public function seekOutput()
+    {
+        $this->process->getOutput();
+    }
+
     public function getOutput()
     {
         if (! $this->output) {

@@ -139,10 +139,10 @@ class Pool implements ArrayAccess
                 }
 
                 /*
-                 * There are likely better solutions here, but basically, without this line, we enter a hang state if the output is sufficiently large (I'm assuming larger than the stdout buffer size).
-                 * So if we configure our pool to support large outputs, but don't actually attempt to read the output here, then the child process never exists, SIGCHILD never fires, and our pool never closes.
+                 * If the process's output exceeds the stdout output buffer, the process never closes, and SIGCHILD is never fired, and thus we enter a hang state.
+                 * This forces the output to be flushed to Symfony's copy of the stdout, ensuring that we don't enter a hang for large outputs.
                  */
-                $process->getOutput();
+                $process->seekOutput();
             }
 
             if (! $this->inProgress) {
