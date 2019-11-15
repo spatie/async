@@ -75,4 +75,29 @@ class ContentLengthTest extends TestCase
 
         await($pool);
     }
+
+    /** @test
+     * The size of the stdout buffer varies by system. On most Linux systems (https://linux.die.net/man/7/pipe), it will be 65536 bytes (64KiB). The tested output is 6MiB, 1KiB, and 4MiB. */
+    public function it_does_not_hang_on_very_large_outputs()
+    {
+        $pool = Pool::create();
+
+        $longerContentLength = 1024 * 1024 * 10;
+
+        $pool->add(function () {
+            return str_repeat('abcdefg', 1024 * 1024);
+        }, $longerContentLength);
+        $pool->add(function () {
+            return str_repeat('é', 1024);
+        }, $longerContentLength);
+        $pool->add(function () {
+            return str_repeat('1234', 1024 * 1024);
+        }, $longerContentLength);
+
+        $result = $pool->wait();
+
+        $this->assertEquals(str_repeat('abcdefg', 1024 * 1024), $result[0]);
+        $this->assertEquals(str_repeat('é', 1024), $result[1]);
+        $this->assertEquals(str_repeat('1234', 1024 * 1024), $result[2]);
+    }
 }

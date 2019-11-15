@@ -137,6 +137,12 @@ class Pool implements ArrayAccess
                 if ($process instanceof SynchronousProcess) {
                     $this->markAsFinished($process);
                 }
+
+                /*
+                 * If the process's output exceeds the stdout output buffer, the process never closes, and SIGCHILD is never fired, and thus we enter a hang state.
+                 * This forces the output to be flushed to Symfony's copy of the stdout, ensuring that we don't enter a hang for large outputs.
+                 */
+                $process->seekOutput();
             }
 
             if (! $this->inProgress) {

@@ -57,6 +57,10 @@ class SynchronousProcess implements Runnable
     {
     }
 
+    public function seekOutput() {
+        // Nothing needs to happen here.
+    }
+
     public function getOutput()
     {
         return $this->output;

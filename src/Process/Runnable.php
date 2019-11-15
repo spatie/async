@@ -33,6 +33,8 @@ interface Runnable
 
     public function stop();
 
+    public function seekOutput();
+
     public function getOutput();
 
     public function getErrorOutput();
