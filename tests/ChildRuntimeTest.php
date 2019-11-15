@@ -2,9 +2,9 @@
 
 namespace Spatie\Async\Tests;
 
-use PHPUnit\Framework\TestCase;
-use function Opis\Closure\serialize;
 use Opis\Closure\SerializableClosure;
+use function Opis\Closure\serialize;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 
 class ChildRuntimeTest extends TestCase
