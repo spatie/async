@@ -4,10 +4,10 @@ namespace Spatie\Async;
 
 use ArrayAccess;
 use InvalidArgumentException;
-use Spatie\Async\Process\Runnable;
-use Spatie\Async\Runtime\ParentRuntime;
 use Spatie\Async\Process\ParallelProcess;
+use Spatie\Async\Process\Runnable;
 use Spatie\Async\Process\SynchronousProcess;
+use Spatie\Async\Runtime\ParentRuntime;
 
 class Pool implements ArrayAccess
 {
