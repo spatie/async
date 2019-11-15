@@ -2,8 +2,8 @@
 
 namespace Spatie\Async\Process;
 
-use Throwable;
 use Spatie\Async\Task;
+use Throwable;
 
 class SynchronousProcess implements Runnable
 {
