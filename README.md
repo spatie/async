@@ -64,7 +64,7 @@ $pool
 Instead of using methods on the `$pool` object, you may also use the `async` and `await` helper functions.
 
 ```php
-use Spatie\Async\Process;
+use Spatie\Async\Pool;
 
 $pool = Pool::create();
 
