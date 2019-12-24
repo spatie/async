@@ -64,7 +64,7 @@ $pool
 Instead of using methods on the `$pool` object, you may also use the `async` and `await` helper functions.
 
 ```php
-use Spatie\Async\Process;
+use Spatie\Async\Pool;
 
 $pool = Pool::create();
 
@@ -200,7 +200,7 @@ $pool = Pool::create()
 // Configure which autoloader sub processes should use.
     ->autoload(__DIR__ . '/../../vendor/autoload.php')
     
-// Configure how long the loop should sleep before re-checking the process statuses in milliseconds.
+// Configure how long the loop should sleep before re-checking the process statuses in microseconds.
     ->sleepTime(50000)
 
 // The path to PHP executable for child runtime

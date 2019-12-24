@@ -2,10 +2,10 @@
 
 namespace Spatie\Async\Process;
 
-use Throwable;
 use Spatie\Async\Output\ParallelError;
-use Symfony\Component\Process\Process;
 use Spatie\Async\Output\SerializableException;
+use Symfony\Component\Process\Process;
+use Throwable;
 
 class ParallelProcess implements Runnable
 {

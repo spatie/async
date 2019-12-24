@@ -2,8 +2,8 @@
 
 namespace Spatie\Async\Process;
 
-use Throwable;
 use ReflectionFunction;
+use Throwable;
 
 trait ProcessCallbacks
 {
