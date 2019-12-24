@@ -2,6 +2,10 @@
 
 All notable changes to `async` will be documented in this file
 
+## 1.1.1 - 2019-12-24
+
+- allow Symfony 5 components
+
 ## 1.1.0 - 2019-09-30
 
 - Make output length configurable (#86)
