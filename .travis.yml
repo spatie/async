@@ -14,7 +14,7 @@ env:
     - COMPOSER_FLAGS=""
 
 install:
-  - travis_retry composer install ${COMPOSER_FLAGS}
+  - travis_retry composer update ${COMPOSER_FLAGS}
 
 script:
   - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
