@@ -42,9 +42,9 @@ class ParallelProcess implements Runnable
         return $this;
     }
 
-    public function stop(): self
+    public function stop($timeout = 0): self
     {
-        $this->process->stop(10, SIGKILL);
+        $this->process->stop($timeout, SIGKILL);
 
         return $this;
     }

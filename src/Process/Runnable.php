@@ -31,7 +31,12 @@ interface Runnable
      */
     public function timeout(callable $callback);
 
-    public function stop();
+    /**
+     * @param int|float $timeout The timeout in seconds
+     *
+     * @return mixed
+     */
+    public function stop($timeout = 0);
 
     public function getOutput();
 

@@ -53,7 +53,7 @@ class SynchronousProcess implements Runnable
         }
     }
 
-    public function stop()
+    public function stop($timeout = 0): void
     {
     }
 

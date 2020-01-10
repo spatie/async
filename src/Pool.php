@@ -188,11 +188,12 @@ class Pool implements ArrayAccess
     {
         unset($this->inProgress[$process->getPid()]);
 
-        $this->notify();
+        $process->stop();
 
         $process->triggerTimeout();
-
         $this->timeouts[$process->getPid()] = $process;
+
+        $this->notify();
     }
 
     public function markAsFailed(Runnable $process)
