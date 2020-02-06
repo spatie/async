@@ -145,11 +145,14 @@ use Spatie\Async\Pool;
 
 $pool = Pool::create();
 
-// Generate 10k processes
-for ($i = 0; $i < 10000; $i++) {
-    $pool->add(function () use ($pool) {
+// Generate 10k processes generating random numbers
+for($i = 0; $i < 10000; $i++) {
+    $pool->add(function() use ($i) {
+        return rand(0, 100);
+
+    })->then(function($output) use ($pool) {
         // If one of them randomly picks 100, end the pool early.
-        if (rand(0, 100) === 100) {
+        if ($output === 100) {
             $pool->stop();
         }
     });

@@ -288,4 +288,30 @@ class PoolTest extends TestCase
 
         $this->assertTrue($isIntermediateCallbackCalled);
     }
+
+    /** @test */
+    public function it_can_be_stopped_early()
+    {
+        $pool = Pool::create();
+
+        $maxProcesses = 10000;
+        $completedProcessesCount = 0;
+
+        for($i = 0; $i < $maxProcesses; $i++) {
+            $pool->add(function() use ($i) {
+                return rand(0, 100);
+
+            })->then(function($output) use ($pool, &$completedProcessesCount) {
+                $completedProcessesCount++;
+
+                if ($output === 100) {
+                    $pool->stop();
+                }
+            });
+        }
+
+        $pool->wait();
+
+        $this->assertLessThan($maxProcesses, $completedProcessesCount);
+    }
 }
