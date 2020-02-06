@@ -4,7 +4,6 @@ namespace Spatie\Async;
 
 use ArrayAccess;
 use InvalidArgumentException;
-use Spatie\Async\Output\ParallelError;
 use Spatie\Async\Process\ParallelProcess;
 use Spatie\Async\Process\Runnable;
 use Spatie\Async\Process\SynchronousProcess;
