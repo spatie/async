@@ -297,11 +297,10 @@ class PoolTest extends TestCase
         $maxProcesses = 10000;
         $completedProcessesCount = 0;
 
-        for($i = 0; $i < $maxProcesses; $i++) {
-            $pool->add(function() use ($i) {
+        for ($i = 0; $i < $maxProcesses; $i++) {
+            $pool->add(function () use ($i) {
                 return rand(0, 100);
-
-            })->then(function($output) use ($pool, &$completedProcessesCount) {
+            })->then(function ($output) use ($pool, &$completedProcessesCount) {
                 $completedProcessesCount++;
 
                 if ($output === 100) {
