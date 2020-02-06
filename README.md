@@ -134,6 +134,32 @@ $pool
     });
 ```
 
+### Stopping a pool
+
+If you need to stop a pool, because thte task it was performing is complete, you can use the
+`$pool->stop()` method. This will prevent the pool from starting any additional processes.
+
+```php
+use Spatie\Async\Pool;
+
+$pool = Pool::create();
+
+// Generate 10k processes
+for ($i = 0; $i < 10000; $i++) {
+    $pool->add(function () use ($pool) {
+        // If one of them randomly picks 100, end the pool early.
+        if (rand(0, 100) === 100) {
+            $pool->stop();
+        }
+    });
+}
+
+$pool->wait();
+```
+
+Note that a pool will be rendered useless after being stopped, and a new pool should be
+created if needed.
+
 ### Working with tasks
 
 Besides using closures, you can also work with a `Task`. 

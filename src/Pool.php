@@ -4,6 +4,7 @@ namespace Spatie\Async;
 
 use ArrayAccess;
 use InvalidArgumentException;
+use Spatie\Async\Output\ParallelError;
 use Spatie\Async\Process\ParallelProcess;
 use Spatie\Async\Process\Runnable;
 use Spatie\Async\Process\SynchronousProcess;
@@ -36,6 +37,8 @@ class Pool implements ArrayAccess
     protected $results = [];
 
     protected $status;
+
+    protected $stopped = false;
 
     public function __construct()
     {
@@ -162,6 +165,10 @@ class Pool implements ArrayAccess
 
     public function putInProgress(Runnable $process)
     {
+        if ($this->stopped) {
+            return;
+        }
+
         if ($process instanceof ParallelProcess) {
             $process->getProcess()->setTimeout($this->timeout);
         }
@@ -300,5 +307,10 @@ class Pool implements ArrayAccess
                 $this->markAsFailed($process);
             }
         });
+    }
+
+    public function stop()
+    {
+        $this->stopped = true;
     }
 }
