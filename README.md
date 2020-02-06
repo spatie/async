@@ -136,8 +136,9 @@ $pool
 
 ### Stopping a pool
 
-If you need to stop a pool, because thte task it was performing is complete, you can use the
-`$pool->stop()` method. This will prevent the pool from starting any additional processes.
+If you need to stop a pool early, because the task it was performing has been completed by one
+of the child processes, you can use the `$pool->stop()` method. This will prevent the 
+pool from starting any additional processes.
 
 ```php
 use Spatie\Async\Pool;
