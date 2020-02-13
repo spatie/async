@@ -293,6 +293,7 @@ class PoolTest extends TestCase
     public function it_can_be_stopped_early()
     {
         $concurrency = 20;
+        $stoppingPoint = $concurrency / 5;
 
         $pool = Pool::create()->concurrency($concurrency);
 
@@ -302,10 +303,10 @@ class PoolTest extends TestCase
         for ($i = 0; $i < $maxProcesses; $i++) {
             $pool->add(function () use ($i) {
                 return $i;
-            })->then(function ($output) use ($pool, &$completedProcessesCount, $concurrency) {
+            })->then(function ($output) use ($pool, &$completedProcessesCount, $stoppingPoint) {
                 $completedProcessesCount++;
 
-                if ($output === $concurrency / 4) {
+                if ($output === $stoppingPoint) {
                     $pool->stop();
                 }
             });
@@ -315,9 +316,9 @@ class PoolTest extends TestCase
 
         /**
          * Because we are stopping the pool early (during the first set of processes created), we expect
-         * the number of completed processes to be within 1 and 2 times the defined concurrency.
+         * the number of completed processes to be less than 2 times the defined concurrency.
          */
-        $this->assertGreaterThanOrEqual($concurrency * 1, $completedProcessesCount);
+        $this->assertGreaterThanOrEqual($stoppingPoint, $completedProcessesCount);
         $this->assertLessThanOrEqual($concurrency * 2, $completedProcessesCount);
     }
 }
