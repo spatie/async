@@ -37,6 +37,8 @@ class Pool implements ArrayAccess
 
     protected $status;
 
+    protected $stopped = false;
+
     public function __construct()
     {
         if (static::isSupported()) {
@@ -162,6 +164,10 @@ class Pool implements ArrayAccess
 
     public function putInProgress(Runnable $process)
     {
+        if ($this->stopped) {
+            return;
+        }
+
         if ($process instanceof ParallelProcess) {
             $process->getProcess()->setTimeout($this->timeout);
         }
@@ -300,5 +306,10 @@ class Pool implements ArrayAccess
                 $this->markAsFailed($process);
             }
         });
+    }
+
+    public function stop()
+    {
+        $this->stopped = true;
     }
 }

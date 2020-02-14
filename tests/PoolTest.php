@@ -288,4 +288,37 @@ class PoolTest extends TestCase
 
         $this->assertTrue($isIntermediateCallbackCalled);
     }
+
+    /** @test */
+    public function it_can_be_stopped_early()
+    {
+        $concurrency = 20;
+        $stoppingPoint = $concurrency / 5;
+
+        $pool = Pool::create()->concurrency($concurrency);
+
+        $maxProcesses = 10000;
+        $completedProcessesCount = 0;
+
+        for ($i = 0; $i < $maxProcesses; $i++) {
+            $pool->add(function () use ($i) {
+                return $i;
+            })->then(function ($output) use ($pool, &$completedProcessesCount, $stoppingPoint) {
+                $completedProcessesCount++;
+
+                if ($output === $stoppingPoint) {
+                    $pool->stop();
+                }
+            });
+        }
+
+        $pool->wait();
+
+        /**
+         * Because we are stopping the pool early (during the first set of processes created), we expect
+         * the number of completed processes to be less than 2 times the defined concurrency.
+         */
+        $this->assertGreaterThanOrEqual($stoppingPoint, $completedProcessesCount);
+        $this->assertLessThanOrEqual($concurrency * 2, $completedProcessesCount);
+    }
 }
