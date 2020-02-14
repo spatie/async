@@ -2,6 +2,10 @@
 
 All notable changes to `async` will be documented in this file
 
+## 1.2.0 - 2020-02-14
+
+- Add ability to stop the pool early (#56)
+
 ## 1.1.1 - 2019-12-24
 
 - allow Symfony 5 components
