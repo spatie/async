@@ -71,7 +71,7 @@ class Pool implements ArrayAccess
         return $this;
     }
 
-    public function timeout(int $timeout): self
+    public function timeout(float $timeout): self
     {
         $this->timeout = $timeout;
 

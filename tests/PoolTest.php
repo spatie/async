@@ -91,6 +91,27 @@ class PoolTest extends TestCase
     }
 
     /** @test */
+    public function it_can_handle_millisecond_timeouts()
+    {
+        $pool = Pool::create()
+            ->timeout(0.2);
+
+        $counter = 0;
+
+        foreach (range(1, 5) as $i) {
+            $pool->add(function () {
+                usleep(500000);
+            })->timeout(function () use (&$counter) {
+                $counter += 1;
+            });
+        }
+
+        $pool->wait();
+
+        $this->assertEquals(5, $counter, (string) $pool->status());
+    }
+
+    /** @test */
     public function it_can_handle_a_maximum_of_concurrent_processes()
     {
         $pool = Pool::create()
