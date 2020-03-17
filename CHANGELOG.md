@@ -2,6 +2,10 @@
 
 All notable changes to `async` will be documented in this file
 
+## 1.3.0 - 2020-03-17
+
+- Support microsecond timeouts (#109)
+
 ## 1.2.0 - 2020-02-14
 
 - Add ability to stop the pool early (#56)
