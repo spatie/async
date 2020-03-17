@@ -223,7 +223,8 @@ $pool = Pool::create()
 // The maximum amount of processes which can run simultaneously.
     ->concurrency(20)
 
-// The maximum amount of time a process may take to finish in seconds.
+// The maximum amount of time a process may take to finish in seconds
+// (decimal places are supported for more granular timeouts).
     ->timeout(15)
 
 // Configure which autoloader sub processes should use.
