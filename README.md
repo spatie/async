@@ -232,6 +232,9 @@ $pool = Pool::create()
     
 // Configure how long the loop should sleep before re-checking the process statuses in microseconds.
     ->sleepTime(50000)
+
+// Configure php executable path
+    ->withBinary('/usr/bin/php74')
 ;
 ```
 
