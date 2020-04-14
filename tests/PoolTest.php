@@ -9,6 +9,7 @@ use Spatie\Async\Tests\InvokableClass;
 use Spatie\Async\Tests\MyClass;
 use Spatie\Async\Tests\MyTask;
 use Spatie\Async\Tests\NonInvokableClass;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class PoolTest extends TestCase
@@ -26,6 +27,9 @@ class PoolTest extends TestCase
         $supported = Pool::isSupported();
 
         $this->anotherPhpBinary = __DIR__.'/another-php-binary';
+        if (file_exists($this->anotherPhpBinary)) {
+            unlink($this->anotherPhpBinary);
+        }
         symlink(PHP_BINARY, $this->anotherPhpBinary);
 
         if (! $supported) {
@@ -228,9 +232,11 @@ class PoolTest extends TestCase
     /** @test */
     public function it_can_work_with_tasks_and_another_binary()
     {
-        $pool = Pool::create();
+        $pool = Pool::create()
+            ->withBinary($this->anotherPhpBinary)
+        ;
 
-        $pool[] = async(new MyTask(), $this->anotherPhpBinary);
+        $pool[] = async(new MyTask());
 
         $results = await($pool);
 

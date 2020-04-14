@@ -11,6 +11,8 @@ use Spatie\Async\Runtime\ParentRuntime;
 
 class Pool implements ArrayAccess
 {
+    public const DEFAULT_PHP_BINARY = 'php';
+
     public static $forceSynchronous = false;
 
     protected $concurrency = 20;
@@ -39,7 +41,7 @@ class Pool implements ArrayAccess
 
     protected $stopped = false;
 
-    protected $binary = 'php';
+    protected $binary = self::DEFAULT_PHP_BINARY;
 
     public function __construct()
     {
@@ -80,7 +82,7 @@ class Pool implements ArrayAccess
         return $this;
     }
 
-    public function withBinary(string $binary = 'php'): self
+    public function withBinary(string $binary = self::DEFAULT_PHP_BINARY): self
     {
         $this->binary = $binary;
 
@@ -132,6 +134,7 @@ class Pool implements ArrayAccess
             $process = ParentRuntime::createProcess($process, $outputLength, $this->binary);
         }
 
+        $process->withBinary($this->binary);
         $this->putInQueue($process);
 
         return $process;

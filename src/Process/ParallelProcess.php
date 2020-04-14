@@ -4,12 +4,16 @@ namespace Spatie\Async\Process;
 
 use Spatie\Async\Output\ParallelError;
 use Spatie\Async\Output\SerializableException;
+use Spatie\Async\Pool;
+use Spatie\Async\Runtime\ParentRuntime;
 use Symfony\Component\Process\Process;
 use Throwable;
 
 class ParallelProcess implements Runnable
 {
     protected $process;
+    protected $binary = Pool::DEFAULT_PHP_BINARY;
+    protected $task;
     protected $id;
     protected $pid;
 
@@ -18,17 +22,21 @@ class ParallelProcess implements Runnable
 
     protected $startTime;
 
+    private $outputLength;
+
     use ProcessCallbacks;
 
-    public function __construct(Process $process, int $id)
+    public function __construct(callable $task, Process $process, int $id, ?int $outputLength)
     {
-        $this->process = $process;
-        $this->id = $id;
+        $this->process      = $process;
+        $this->task         = $task;
+        $this->id           = $id;
+        $this->outputLength = $outputLength;
     }
 
-    public static function create(Process $process, int $id): self
+    public static function create(callable $task, Process $process, int $id, ?int $outputLength): self
     {
-        return new self($process, $id);
+        return new self($task, $process, $id, $outputLength);
     }
 
     public function start(): self
@@ -45,6 +53,14 @@ class ParallelProcess implements Runnable
     public function stop(): self
     {
         $this->process->stop(10, SIGKILL);
+
+        return $this;
+    }
+
+    public function withBinary(string $binary = Pool::DEFAULT_PHP_BINARY): self
+    {
+        $this->binary  = $binary;
+        $this->process = ParentRuntime::createProcessExecutable($this->task, $this->outputLength, $this->binary);
 
         return $this;
     }
@@ -66,12 +82,12 @@ class ParallelProcess implements Runnable
 
     public function getOutput()
     {
-        if (! $this->output) {
+        if (!$this->output) {
             $processOutput = $this->process->getOutput();
 
             $this->output = @unserialize(base64_decode($processOutput));
 
-            if (! $this->output) {
+            if (!$this->output) {
                 $this->errorOutput = $processOutput;
             }
         }
@@ -81,12 +97,12 @@ class ParallelProcess implements Runnable
 
     public function getErrorOutput()
     {
-        if (! $this->errorOutput) {
+        if (!$this->errorOutput) {
             $processOutput = $this->process->getErrorOutput();
 
             $this->errorOutput = @unserialize(base64_decode($processOutput));
 
-            if (! $this->errorOutput) {
+            if (!$this->errorOutput) {
                 $this->errorOutput = $processOutput;
             }
         }
@@ -122,7 +138,7 @@ class ParallelProcess implements Runnable
             $exception = $exception->asThrowable();
         }
 
-        if (! $exception instanceof Throwable) {
+        if (!$exception instanceof Throwable) {
             $exception = ParallelError::fromException($exception);
         }
 

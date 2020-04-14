@@ -2,6 +2,8 @@
 
 namespace Spatie\Async\Process;
 
+use Spatie\Async\Pool;
+
 interface Runnable
 {
     public function getId(): int;
@@ -9,6 +11,8 @@ interface Runnable
     public function getPid(): ?int;
 
     public function start();
+
+    public function withBinary(string $binary = Pool::DEFAULT_PHP_BINARY);
 
     /**
      * @param callable $callback

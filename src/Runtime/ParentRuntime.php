@@ -55,7 +55,7 @@ class ParentRuntime
      * @param string $binary
      * @return \Spatie\Async\Process\Runnable
      */
-    public static function createProcess($task, ?int $outputLength = null, string $binary = 'php'): Runnable
+    public static function createProcess($task, ?int $outputLength = null, string $binary = Pool::DEFAULT_PHP_BINARY): Runnable
     {
         if (! self::$isInitialised) {
             self::init();
@@ -65,15 +65,20 @@ class ParentRuntime
             return SynchronousProcess::create($task, self::getId());
         }
 
-        $process = new Process([
+        $process = self::createProcessExecutable($task, $outputLength, $binary);
+
+        return ParallelProcess::create($task, $process, self::getId(), $outputLength);
+    }
+
+    public static function createProcessExecutable($task, ?int $outputLength = null, string $binary = Pool::DEFAULT_PHP_BINARY): Process
+    {
+        return new Process([
             $binary,
             self::$childProcessScript,
             self::$autoloader,
             self::encodeTask($task),
             $outputLength,
         ]);
-
-        return ParallelProcess::create($process, self::getId());
     }
 
     /**

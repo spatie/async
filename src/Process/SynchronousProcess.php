@@ -2,6 +2,7 @@
 
 namespace Spatie\Async\Process;
 
+use Spatie\Async\Pool;
 use Spatie\Async\Task;
 use Throwable;
 
@@ -75,5 +76,10 @@ class SynchronousProcess implements Runnable
     protected function resolveErrorOutput(): Throwable
     {
         return $this->getErrorOutput();
+    }
+
+    public function withBinary(string $binary = Pool::DEFAULT_PHP_BINARY): self
+    {
+        return $this;
     }
 }
