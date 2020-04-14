@@ -28,9 +28,9 @@ class ParallelProcess implements Runnable
 
     public function __construct(callable $task, Process $process, int $id, ?int $outputLength)
     {
-        $this->process      = $process;
-        $this->task         = $task;
-        $this->id           = $id;
+        $this->process = $process;
+        $this->task = $task;
+        $this->id = $id;
         $this->outputLength = $outputLength;
     }
 
@@ -59,7 +59,7 @@ class ParallelProcess implements Runnable
 
     public function withBinary(string $binary = Pool::DEFAULT_PHP_BINARY): self
     {
-        $this->binary  = $binary;
+        $this->binary = $binary;
         $this->process = ParentRuntime::createProcessExecutable($this->task, $this->outputLength, $this->binary);
 
         return $this;
@@ -82,12 +82,12 @@ class ParallelProcess implements Runnable
 
     public function getOutput()
     {
-        if (!$this->output) {
+        if (! $this->output) {
             $processOutput = $this->process->getOutput();
 
             $this->output = @unserialize(base64_decode($processOutput));
 
-            if (!$this->output) {
+            if (! $this->output) {
                 $this->errorOutput = $processOutput;
             }
         }
@@ -97,12 +97,12 @@ class ParallelProcess implements Runnable
 
     public function getErrorOutput()
     {
-        if (!$this->errorOutput) {
+        if (! $this->errorOutput) {
             $processOutput = $this->process->getErrorOutput();
 
             $this->errorOutput = @unserialize(base64_decode($processOutput));
 
-            if (!$this->errorOutput) {
+            if (! $this->errorOutput) {
                 $this->errorOutput = $processOutput;
             }
         }
@@ -138,7 +138,7 @@ class ParallelProcess implements Runnable
             $exception = $exception->asThrowable();
         }
 
-        if (!$exception instanceof Throwable) {
+        if (! $exception instanceof Throwable) {
             $exception = ParallelError::fromException($exception);
         }
 
