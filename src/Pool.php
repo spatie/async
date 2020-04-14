@@ -39,6 +39,8 @@ class Pool implements ArrayAccess
 
     protected $stopped = false;
 
+    protected $binary = 'php';
+
     public function __construct()
     {
         if (static::isSupported()) {
@@ -74,6 +76,13 @@ class Pool implements ArrayAccess
     public function timeout(float $timeout): self
     {
         $this->timeout = $timeout;
+
+        return $this;
+    }
+
+    public function withBinary(string $binary = 'php'): self
+    {
+        $this->binary = $binary;
 
         return $this;
     }
@@ -120,7 +129,7 @@ class Pool implements ArrayAccess
         }
 
         if (! $process instanceof Runnable) {
-            $process = ParentRuntime::createProcess($process, $outputLength);
+            $process = ParentRuntime::createProcess($process, $outputLength, $this->binary);
         }
 
         $this->putInQueue($process);

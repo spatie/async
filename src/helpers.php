@@ -8,11 +8,12 @@ if (! function_exists('async')) {
     /**
      * @param \Spatie\Async\Task|callable $task
      *
+     * @param string $binary
      * @return \Spatie\Async\Process\ParallelProcess
      */
-    function async($task): Runnable
+    function async($task, string $binary = 'php'): Runnable
     {
-        return ParentRuntime::createProcess($task);
+        return ParentRuntime::createProcess($task, null, $binary);
     }
 }
 
