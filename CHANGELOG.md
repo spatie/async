@@ -2,6 +2,10 @@
 
 All notable changes to `async` will be documented in this file
 
+## 1.4.0 - 2020-04-15
+
+- Make binary configurable (#111 and #112)
+
 ## 1.3.0 - 2020-03-17
 
 - Support microsecond timeouts (#109)
