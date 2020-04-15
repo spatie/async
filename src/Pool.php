@@ -39,6 +39,8 @@ class Pool implements ArrayAccess
 
     protected $stopped = false;
 
+    protected $binary = 'php';
+
     public function __construct()
     {
         if (static::isSupported()) {
@@ -92,6 +94,13 @@ class Pool implements ArrayAccess
         return $this;
     }
 
+    public function withBinary(string $binary): self
+    {
+        $this->binary = $binary;
+
+        return $this;
+    }
+
     public function notify()
     {
         if (count($this->inProgress) >= $this->concurrency) {
@@ -120,7 +129,11 @@ class Pool implements ArrayAccess
         }
 
         if (! $process instanceof Runnable) {
-            $process = ParentRuntime::createProcess($process, $outputLength);
+            $process = ParentRuntime::createProcess(
+                $process,
+                $outputLength,
+                $this->binary
+            );
         }
 
         $this->putInQueue($process);

@@ -70,6 +70,36 @@ class PoolTest extends TestCase
     }
 
     /** @test */
+    public function it_can_configure_another_binary()
+    {
+        $binary = __DIR__.'/another-php-binary';
+
+        if (! file_exists($binary)) {
+            symlink(PHP_BINARY, $binary);
+        }
+
+        $pool = Pool::create()->withBinary($binary);
+
+        $counter = 0;
+
+        foreach (range(1, 5) as $i) {
+            $pool->add(function () {
+                return 2;
+            })->then(function (int $output) use (&$counter) {
+                $counter += $output;
+            });
+        }
+
+        $pool->wait();
+
+        $this->assertEquals(10, $counter, (string) $pool->status());
+
+        if (file_exists($binary)) {
+            unlink($binary);
+        }
+    }
+
+    /** @test */
     public function it_can_handle_timeout()
     {
         $pool = Pool::create()

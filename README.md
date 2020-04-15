@@ -163,6 +163,15 @@ $pool->wait();
 Note that a pool will be rendered useless after being stopped, and a new pool should be
 created if needed.
 
+### Using another PHP binary
+
+By default the pool will use `php` to execute its child processes. You can configure another binary like so:
+
+```php
+Pool::create()
+    ->withBinary('/path/to/php');
+```
+
 ### Working with tasks
 
 Besides using closures, you can also work with a `Task`. 
