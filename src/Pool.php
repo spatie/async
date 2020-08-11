@@ -39,7 +39,7 @@ class Pool implements ArrayAccess
 
     protected $stopped = false;
 
-    protected $binary = 'php';
+    protected $binary = PHP_BINARY;
 
     public function __construct()
     {
