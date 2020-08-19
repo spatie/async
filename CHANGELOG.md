@@ -2,6 +2,10 @@
 
 All notable changes to `async` will be documented in this file
 
+## 1.4.1 - 2020-08-19
+
+- Properly stop process on timeout (#105)
+
 ## 1.4.0 - 2020-04-15
 
 - Make binary configurable (#111 and #112)
