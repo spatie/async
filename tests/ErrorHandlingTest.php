@@ -30,6 +30,24 @@ class ErrorHandlingTest extends TestCase
     }
 
     /** @test */
+    public function it_can_handle_complex_exceptions_via_catch_callback()
+    {
+        $pool = Pool::create();
+
+        foreach (range(1, 5) as $i) {
+            $pool->add(function () {
+                throw new MyComplexException('test', (object) ['error' => 'wrong query']);
+            })->catch(function (MyComplexException $e) {
+                $this->assertRegExp('/test/', $e->getMessage());
+            });
+        }
+
+        $pool->wait();
+
+        $this->assertCount(5, $pool->getFailed(), (string) $pool->status());
+    }
+
+    /** @test */
     public function it_can_handle_typed_exceptions_via_catch_callback()
     {
         $pool = Pool::create();
