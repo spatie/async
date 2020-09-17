@@ -5,7 +5,7 @@ namespace Spatie\Async\Tests;
 use Exception;
 use stdClass;
 
-class MyComplexException extends Exception
+class MyExceptionWithAComplexArgument extends Exception
 {
     public $payload;
 
