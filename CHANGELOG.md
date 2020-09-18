@@ -2,6 +2,10 @@
 
 All notable changes to `async` will be documented in this file
 
+## 1.5.0 - 2020-09-18
+
+- Add fallback to SerializableException to handle "complex" exceptions (#119)
+
 ## 1.4.1 - 2020-08-19
 
 - Properly stop process on timeout (#105)
