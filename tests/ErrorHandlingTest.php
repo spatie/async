@@ -7,6 +7,7 @@ use Exception;
 use ParseError;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Output\ParallelError;
+use Spatie\Async\Output\ParallelException;
 use Spatie\Async\Pool;
 
 class ErrorHandlingTest extends TestCase
@@ -27,6 +28,47 @@ class ErrorHandlingTest extends TestCase
         $pool->wait();
 
         $this->assertCount(5, $pool->getFailed(), (string) $pool->status());
+    }
+
+    /** @test */
+    public function it_can_handle_complex_exceptions_via_catch_callback()
+    {
+        $pool = Pool::create();
+
+        $originalExceptionCount = 0;
+        $fallbackExceptionCount = 0;
+
+        $pool
+            ->add(function () {
+                throw new MyExceptionWithAComplexArgument('test', (object) ['error' => 'wrong query']);
+            })
+            ->catch(function (MyExceptionWithAComplexArgument $e) use (&$originalExceptionCount) {
+                $originalExceptionCount += 1;
+            })
+            ->catch(function (ParallelException $e) use (&$fallbackExceptionCount) {
+                $fallbackExceptionCount += 1;
+                $this->assertEquals('test', $e->getMessage());
+                $this->assertEquals(MyExceptionWithAComplexArgument::class, $e->getOriginalClass());
+            });
+
+        $pool
+            ->add(function () use (&$originalExceptionCount) {
+                throw new MyExceptionWithAComplexFirstArgument((object) ['error' => 'wrong query'], 'test');
+            })
+            ->catch(function (MyExceptionWithAComplexFirstArgument $e) use (&$originalExceptionCount) {
+                $originalExceptionCount += 1;
+            })
+            ->catch(function (ParallelException $e) use (&$fallbackExceptionCount) {
+                $fallbackExceptionCount += 1;
+                $this->assertEquals('test', $e->getMessage());
+                $this->assertEquals(MyExceptionWithAComplexFirstArgument::class, $e->getOriginalClass());
+            });
+
+        $pool->wait();
+
+        $this->assertCount(2, $pool->getFailed(), (string) $pool->status());
+        $this->assertEquals(0, $originalExceptionCount);
+        $this->assertEquals(2, $fallbackExceptionCount);
     }
 
     /** @test */
