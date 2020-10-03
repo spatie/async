@@ -5,7 +5,6 @@ namespace Spatie\Async\Tests;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use Spatie\Async\Pool;
-use Spatie\Async\Tests\MyTask;
 
 class PoolStatusTest extends TestCase
 {
