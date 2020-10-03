@@ -1,9 +1,10 @@
 <?php
 
-namespace Spatie\Async;
+namespace Spatie\Async\Tests;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Spatie\Async\Pool;
 use Spatie\Async\Tests\MyTask;
 
 class PoolStatusTest extends TestCase
@@ -15,11 +16,11 @@ class PoolStatusTest extends TestCase
 
         $pool->add(new MyTask());
 
-        $this->assertContains('finished: 0', (string) $pool->status());
+        $this->assertStringContainsString('finished: 0', (string) $pool->status());
 
         await($pool);
 
-        $this->assertContains('finished: 1', (string) $pool->status());
+        $this->assertStringContainsString('finished: 1', (string) $pool->status());
     }
 
     /** @test */
@@ -37,9 +38,9 @@ class PoolStatusTest extends TestCase
 
         $pool->wait();
 
-        $this->assertContains('finished: 0', (string) $pool->status());
-        $this->assertContains('failed: 5', (string) $pool->status());
-        $this->assertContains('failed with Exception: Test', (string) $pool->status());
+        $this->assertStringContainsString('finished: 0', (string) $pool->status());
+        $this->assertStringContainsString('failed: 5', (string) $pool->status());
+        $this->assertStringContainsString('failed with Exception: Test', (string) $pool->status());
     }
 
     /** @test */
@@ -55,6 +56,6 @@ class PoolStatusTest extends TestCase
 
         $pool->wait();
 
-        $this->assertContains('timeout: 5', (string) $pool->status());
+        $this->assertStringContainsString('timeout: 5', (string) $pool->status());
     }
 }
