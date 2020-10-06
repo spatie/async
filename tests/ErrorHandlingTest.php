@@ -5,7 +5,6 @@ namespace Spatie\Async\Tests;
 use Error;
 use Exception;
 use ParseError;
-use PHPUnit\Framework\TestCase;
 use Spatie\Async\Output\ParallelError;
 use Spatie\Async\Output\ParallelException;
 use Spatie\Async\Pool;
@@ -21,7 +20,7 @@ class ErrorHandlingTest extends TestCase
             $pool->add(function () {
                 throw new MyException('test');
             })->catch(function (MyException $e) {
-                $this->assertRegExp('/test/', $e->getMessage());
+                $this->assertMatchesRegExp('/test/', $e->getMessage());
             });
         }
 
@@ -88,7 +87,7 @@ class ErrorHandlingTest extends TestCase
                     throw new MyException('test');
                 })
                 ->catch(function (MyException $e) use (&$myExceptionCount) {
-                    $this->assertRegExp('/test/', $e->getMessage());
+                    $this->assertMatchesRegExp('/test/', $e->getMessage());
 
                     $myExceptionCount += 1;
                 })
@@ -112,7 +111,7 @@ class ErrorHandlingTest extends TestCase
     public function it_throws_the_exception_if_no_catch_callback()
     {
         $this->expectException(MyException::class);
-        $this->expectExceptionMessageRegExp('/test/');
+        $this->expectExceptionMessageRegularExpression('/test/');
 
         $pool = Pool::create();
 
@@ -127,7 +126,7 @@ class ErrorHandlingTest extends TestCase
     public function it_throws_fatal_errors()
     {
         $this->expectException(Error::class);
-        $this->expectExceptionMessageRegExp('/test/');
+        $this->expectExceptionMessageRegularExpression('/test/');
 
         $pool = Pool::create();
 
@@ -148,7 +147,7 @@ class ErrorHandlingTest extends TestCase
 
             $myClass->throwException();
         })->catch(function (MyException $exception) {
-            $this->assertContains('Spatie\Async\Tests\MyClass->throwException()', $exception->getMessage());
+            $this->assertStringContainsString('Spatie\Async\Tests\MyClass->throwException()', $exception->getMessage());
         });
 
         $pool->wait();
@@ -162,7 +161,7 @@ class ErrorHandlingTest extends TestCase
         $pool->add(function () {
             fwrite(STDERR, 'test');
         })->catch(function (ParallelError $error) {
-            $this->assertContains('test', $error->getMessage());
+            $this->assertStringContainsString('test', $error->getMessage());
         });
 
         $pool->wait();
@@ -192,7 +191,7 @@ class ErrorHandlingTest extends TestCase
         $pool->add(function () {
             throw new MyException('test');
         })->catch(function (MyException $e) {
-            $this->assertRegExp('/test/', $e->getMessage());
+            $this->assertMatchesRegExp('/test/', $e->getMessage());
         });
 
         $pool->wait();

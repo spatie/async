@@ -1,14 +1,10 @@
 <?php
 
-namespace Spatie\Async;
+namespace Spatie\Async\Tests;
 
 use InvalidArgumentException;
-use PHPUnit\Framework\TestCase;
+use Spatie\Async\Pool;
 use Spatie\Async\Process\SynchronousProcess;
-use Spatie\Async\Tests\InvokableClass;
-use Spatie\Async\Tests\MyClass;
-use Spatie\Async\Tests\MyTask;
-use Spatie\Async\Tests\NonInvokableClass;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class PoolTest extends TestCase
@@ -16,7 +12,7 @@ class PoolTest extends TestCase
     /** @var \Symfony\Component\Stopwatch\Stopwatch */
     protected $stopwatch;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

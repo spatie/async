@@ -2,7 +2,6 @@
 
 namespace Spatie\Async\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Spatie\Async\Output\ParallelError;
 use Spatie\Async\Pool;
 
@@ -17,11 +16,11 @@ class ContentLengthTest extends TestCase
 
         $pool->add(new MyTask(), $longerContentLength);
 
-        $this->assertContains('finished: 0', (string) $pool->status());
+        $this->assertStringContainsString('finished: 0', (string) $pool->status());
 
         await($pool);
 
-        $this->assertContains('finished: 1', (string) $pool->status());
+        $this->assertStringContainsString('finished: 1', (string) $pool->status());
     }
 
     /** @test */
@@ -33,11 +32,11 @@ class ContentLengthTest extends TestCase
 
         $pool->add(new MyTask(), $shorterContentLength);
 
-        $this->assertContains('finished: 0', (string) $pool->status());
+        $this->assertStringContainsString('finished: 0', (string) $pool->status());
 
         await($pool);
 
-        $this->assertContains('finished: 1', (string) $pool->status());
+        $this->assertStringContainsString('finished: 1', (string) $pool->status());
     }
 
     /** @test */
@@ -52,7 +51,7 @@ class ContentLengthTest extends TestCase
         }, $longerContentLength)
             ->catch(function (ParallelError $e) use ($longerContentLength) {
                 $message = "/The output returned by this child process is too large. The serialized output may only be $longerContentLength bytes long./";
-                $this->assertRegExp($message, $e->getMessage());
+                $this->assertMatchesRegExp($message, $e->getMessage());
             });
 
         await($pool);
@@ -70,7 +69,7 @@ class ContentLengthTest extends TestCase
         }, $longerContentLength)
             ->catch(function (ParallelError $e) use ($longerContentLength) {
                 $message = "/The output returned by this child process is too large. The serialized output may only be $longerContentLength bytes long./";
-                $this->assertRegExp($message, $e->getMessage());
+                $this->assertMatchesRegExp($message, $e->getMessage());
             });
 
         await($pool);
