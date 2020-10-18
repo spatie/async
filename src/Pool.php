@@ -63,6 +63,7 @@ class Pool implements ArrayAccess
         return
             function_exists('pcntl_async_signals')
             && function_exists('posix_kill')
+            && function_exists('proc_open')
             && ! self::$forceSynchronous;
     }
 
