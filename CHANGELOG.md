@@ -2,6 +2,10 @@
 
 All notable changes to `async` will be documented in this file
 
+## 1.5.1 - 2020-11-20
+
+- Support for PHP 8
+
 ## 1.5.0 - 2020-09-18
 
 - Add fallback to SerializableException to handle "complex" exceptions (#119)
