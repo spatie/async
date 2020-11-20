@@ -3,3 +3,4 @@ build
 composer.lock
 vendor
 tests/another-php-binary
+.php_cs.cache
