@@ -2,6 +2,10 @@
 
 All notable changes to `async` will be documented in this file
 
+## 1.5.2 - 2020-11-20
+
+- Configure task in synchronous process
+
 ## 1.5.1 - 2020-11-20
 
 - Support for PHP 8
