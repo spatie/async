@@ -66,6 +66,13 @@ class Pool implements ArrayAccess
             && ! self::$forceSynchronous;
     }
 
+    public function forceSynchronous(): self
+    {
+        self::$forceSynchronous = true;
+
+        return $this;
+    }
+
     public function concurrency(int $concurrency): self
     {
         $this->concurrency = $concurrency;
