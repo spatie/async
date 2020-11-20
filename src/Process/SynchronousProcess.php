@@ -42,6 +42,10 @@ class SynchronousProcess implements Runnable
     {
         $startTime = microtime(true);
 
+        if ($this->task instanceof Task) {
+            $this->task->configure();
+        }
+
         try {
             $this->output = $this->task instanceof Task
                 ? $this->task->run()
