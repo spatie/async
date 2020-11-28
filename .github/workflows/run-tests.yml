@@ -31,9 +31,20 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick
           coverage: none
 
-      - name: Install dependencies
+      - name: Install dependencies + PHPUnit 7
+        if: ${{ matrix.php == '7.1' }}
         run: |
-          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --ignore-platform-reqs
+          composer update --with='phpunit/phpunit:^7.5' --${{ matrix.dependency-version }} --prefer-dist --no-interaction --ignore-platform-reqs
+
+      - name: Install dependencies + PHPUnit 8
+        if: ${{ matrix.php == '7.2' }}
+        run: |
+          composer update --with='phpunit/phpunit:^8.0' --${{ matrix.dependency-version }} --prefer-dist --no-interaction --ignore-platform-reqs
+
+      - name: Install dependencies + PHPUnit 9
+        if: ${{ matrix.php != '7.1' && matrix.php != '7.2' }}
+        run: |
+          composer update --with='phpunit/phpunit:^9.0' --${{ matrix.dependency-version }} --prefer-dist --no-interaction --ignore-platform-reqs
 
       - name: Execute tests
         run: vendor/bin/phpunit
