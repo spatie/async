@@ -15,20 +15,33 @@ class SerializableException
     /** @var string */
     protected $trace;
 
+    /** @var string */
+    protected $serialized;
+
     public function __construct(Throwable $exception)
     {
-        $this->class = get_class($exception);
-        $this->message = $exception->getMessage();
-        $this->trace = $exception->getTraceAsString();
+        try{
+            $this->serialized = serialize($exception);
+        }
+        catch(\Exception $e){
+            $this->class = get_class($exception);
+            $this->message = $exception->getMessage();
+            $this->trace = $exception->getTraceAsString();
+        }
     }
 
     public function asThrowable(): Throwable
     {
-        try {
+        if(isset($this->serialized)){
             /** @var Throwable $throwable */
-            $throwable = new $this->class($this->message."\n\n".$this->trace);
-        } catch (Throwable $exception) {
-            $throwable = new ParallelException($this->message, $this->class, $this->trace);
+            $throwable = unserialize($this->serialized);
+        }
+        else{
+            try {
+                $throwable = new $this->class($this->message."\n\n".$this->trace);
+            } catch (Throwable $exception) {
+                $throwable = new ParallelException($this->message, $this->class, $this->trace);
+            }
         }
 
         return $throwable;
