@@ -166,8 +166,8 @@ class Pool implements ArrayAccess
                 break;
             }
 
-            if ($intermediateCallback) {
-                call_user_func_array($intermediateCallback, [$this]);
+            if ($intermediateCallback && call_user_func_array($intermediateCallback, [$this])) {
+                break;
             }
 
             usleep($this->sleepTime);
