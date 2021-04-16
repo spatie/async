@@ -61,10 +61,10 @@ class Pool implements ArrayAccess
     public static function isSupported(): bool
     {
         return
-            function_exists('pcntl_async_signals')
+            ! self::$forceSynchronous
+            && function_exists('pcntl_async_signals')
             && function_exists('posix_kill')
-            && function_exists('proc_open')
-            && ! self::$forceSynchronous;
+            && function_exists('proc_open');
     }
 
     public function forceSynchronous(): self
