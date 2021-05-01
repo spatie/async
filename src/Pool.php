@@ -60,11 +60,50 @@ class Pool implements ArrayAccess
 
     public static function isSupported(): bool
     {
+        // Immediately return false if the user
+        // has disabled Async operations
+        if (self::$forceSynchronous) {
+            return false;
+        }
+        
+        /**
+         * According to the documentation for Snuffleupagus,
+         * the following function_names are disallowed from `function_exists()` calls:
+         *
+         *  - eval
+         *  - exec
+         *  - system
+         *  - shell_exec
+         *  - proc_open
+         *  - passthru
+         *
+         * Therefore, to test if `proc_open` is available, simply try to call it
+         * and catch the [Error](https://www.php.net/manual/en/class.error.php)
+         * @link https://snuffleupagus.readthedocs.io/config.html#examples
+         */
+        $isSupported = false;
+        try {
+            // Try to call proc_open directly.
+            // Supress any errors or warnings in
+            // calling (expects 3 args, none given)
+            $proc = @proc_open();
+            
+            // If we don't throw an Error or Exception
+            // while trying to call `proc_open`, we can
+            // continue and assume we're in a supported environment
+            $isSupported = true;
+            
+            if ($proc) {
+                proc_close($proc);
+            }
+        } catch (\Error $e) {
+            // definitely not supported
+        }
+
         return
-            ! self::$forceSynchronous
+            $isSupported
             && function_exists('pcntl_async_signals')
-            && function_exists('posix_kill')
-            && function_exists('proc_open');
+            && function_exists('posix_kill');
     }
 
     public function forceSynchronous(): self
