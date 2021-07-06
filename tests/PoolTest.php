@@ -310,7 +310,7 @@ class PoolTest extends TestCase
         $pool = Pool::create();
 
         $pool[] = async(new MyTask())->then(function ($output) {
-            $this->assertEquals(0, $output);
+            $this->assertEquals(2, $output);
         });
 
         await($pool);
