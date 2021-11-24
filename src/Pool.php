@@ -177,7 +177,7 @@ class Pool implements ArrayAccess
 
     public function wait(?callable $intermediateCallback = null): array {
         while ($this->inProgress) {
-            $this->customWait($intermediateCallback);
+            $this->baseWait($intermediateCallback);
             usleep($this->sleepTime);
         }
 
