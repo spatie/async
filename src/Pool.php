@@ -169,8 +169,7 @@ class Pool implements ArrayAccess
             if ($intermediateCallback) {
                 call_user_func_array($intermediateCallback, [$this]);
             }
-        }
-        if (!$this->inProgress) {
+        }else{
             return $this->results;
         }
     }
