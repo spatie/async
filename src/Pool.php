@@ -154,7 +154,7 @@ class Pool implements ArrayAccess
      *
      * @return array|void
      */
-    public function customWait(?callable $intermediateCallback = null) {
+    public function baseWait(?callable $intermediateCallback = null) {
         foreach ($this->inProgress as $process) {
             if ($process->getCurrentExecutionTime() > $this->timeout) {
                 $this->markAsTimedOut($process);
