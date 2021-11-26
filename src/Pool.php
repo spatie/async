@@ -40,6 +40,10 @@ class Pool implements ArrayAccess
     protected $stopped = false;
 
     protected $binary = PHP_BINARY;
+    protected $autoloader = null;
+    protected $childProcessScript = null;
+
+    protected array $extraChildProcessArgs = [];
 
     public function __construct()
     {
@@ -88,6 +92,11 @@ class Pool implements ArrayAccess
         return $this;
     }
 
+    /**
+     * @param string $autoloader
+     *
+     * @return $this
+     */
     public function autoload(string $autoloader): self
     {
         ParentRuntime::init($autoloader);
@@ -105,6 +114,21 @@ class Pool implements ArrayAccess
     public function withBinary(string $binary): self
     {
         $this->binary = $binary;
+
+        return $this;
+    }
+
+    public function withAutoloader(string $autoloader): self
+    {
+        $this->autoloader = $autoloader;
+
+        return $this;
+    }
+
+    public function withChildProcessScript(string $childProcessScript, array $extraArgs = []): self
+    {
+        $this->childProcessScript = $childProcessScript;
+        $this->extraChildProcessArgs = $extraArgs;
 
         return $this;
     }
@@ -140,7 +164,10 @@ class Pool implements ArrayAccess
             $process = ParentRuntime::createProcess(
                 $process,
                 $outputLength,
-                $this->binary
+                $this->binary,
+                $this->autoloader,
+                $this->childProcessScript,
+                $this->extraChildProcessArgs
             );
         }
 
