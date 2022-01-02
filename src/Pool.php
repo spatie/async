@@ -151,29 +151,52 @@ class Pool implements ArrayAccess
 
     public function wait(?callable $intermediateCallback = null): array
     {
-        while ($this->inProgress) {
-            foreach ($this->inProgress as $process) {
-                if ($process->getCurrentExecutionTime() > $this->timeout) {
-                    $this->markAsTimedOut($process);
-                }
+        return iterator_to_array($this->results($intermediateCallback));
+    }
 
-                if ($process instanceof SynchronousProcess) {
-                    $this->markAsFinished($process);
-                }
-            }
-
-            if (! $this->inProgress) {
-                break;
-            }
+    public function results(?callable $intermediateCallback = null): \Generator
+    {
+        while ($this->tick()) {
 
             if ($intermediateCallback) {
                 call_user_func_array($intermediateCallback, [$this]);
             }
 
+            if ($this->hasResults()) {
+                yield $this->shiftResult();
+            }
+
             usleep($this->sleepTime);
         }
 
-        return $this->results;
+        while ($this->hasResults()) {
+            yield $this->shiftResult();
+        }
+    }
+
+    public function shiftResult()
+    {
+        return array_shift($this->results);
+    }
+
+    public function hasResults(): bool
+    {
+        return (bool)$this->results;
+    }
+
+    public function tick(): bool
+    {
+        foreach ($this->inProgress as $process) {
+            if ($process->getCurrentExecutionTime() > $this->timeout) {
+                $this->markAsTimedOut($process);
+            }
+
+            if ($process instanceof SynchronousProcess) {
+                $this->markAsFinished($process);
+            }
+        }
+
+        return (bool)$this->inProgress;
     }
 
     public function putInQueue(Runnable $process)
@@ -278,6 +301,21 @@ class Pool implements ArrayAccess
     public function getFinished(): array
     {
         return $this->finished;
+    }
+
+    public function pruneFinished()
+    {
+        $this->finished = [];
+    }
+
+    public function pruneFailed()
+    {
+        $this->failed = [];
+    }
+
+    public function pruneTimeouts()
+    {
+        $this->timeouts = [];
     }
 
     /**
