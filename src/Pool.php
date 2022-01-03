@@ -176,27 +176,34 @@ class Pool implements ArrayAccess
         return $process;
     }
 
-    public function wait(?callable $intermediateCallback = null): array
-    {
-        while ($this->inProgress) {
-            foreach ($this->inProgress as $process) {
-                if ($process->getCurrentExecutionTime() > $this->timeout) {
-                    $this->markAsTimedOut($process);
-                }
-
-                if ($process instanceof SynchronousProcess) {
-                    $this->markAsFinished($process);
-                }
+    /**
+     * @param callable|null $intermediateCallback
+     *
+     * @return array|void
+     */
+    public function baseWait(?callable $intermediateCallback = null) {
+        foreach ($this->inProgress as $process) {
+            if ($process->getCurrentExecutionTime() > $this->timeout) {
+                $this->markAsTimedOut($process);
             }
 
-            if (! $this->inProgress) {
-                break;
+            if ($process instanceof SynchronousProcess) {
+                $this->markAsFinished($process);
             }
+        }
 
+        if ($this->inProgress) {
             if ($intermediateCallback) {
                 call_user_func_array($intermediateCallback, [$this]);
             }
+        }else{
+            return $this->results;
+        }
+    }
 
+    public function wait(?callable $intermediateCallback = null): array {
+        while ($this->inProgress) {
+            $this->baseWait($intermediateCallback);
             usleep($this->sleepTime);
         }
 
@@ -321,6 +328,13 @@ class Pool implements ArrayAccess
     public function getTimeouts(): array
     {
         return $this->timeouts;
+    }
+    
+    /**
+     * @return int
+     */
+    public function getSleepTime(): int {
+        return $this->sleepTime;
     }
 
     public function status(): PoolStatus
