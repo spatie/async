@@ -1,5 +1,5 @@
 {
-    "name": "spatie/async",
+    "name": "steve-moretz/async-react-php",
     "description": "Asynchronous and parallel PHP with the PCNTL extension",
     "keywords": [
         "spatie",
