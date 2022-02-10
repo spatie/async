@@ -2,8 +2,7 @@
 
 namespace Spatie\Async\Tests;
 
-use Opis\Closure\SerializableClosure;
-use function Opis\Closure\serialize;
+use Laravel\SerializableClosure\SerializableClosure;
 use Symfony\Component\Process\Process;
 
 class ChildRuntimeTest extends TestCase
