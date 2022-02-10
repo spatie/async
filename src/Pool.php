@@ -329,7 +329,7 @@ class Pool implements ArrayAccess
     {
         return $this->timeouts;
     }
-    
+
     /**
      * @return int
      */
