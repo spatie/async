@@ -3,9 +3,7 @@
 namespace Spatie\Async\Runtime;
 
 use Closure;
-use Opis\Closure\SerializableClosure;
-use function Opis\Closure\serialize;
-use function Opis\Closure\unserialize;
+use Laravel\SerializableClosure\SerializableClosure;
 use Spatie\Async\Pool;
 use Spatie\Async\Process\ParallelProcess;
 use Spatie\Async\Process\Runnable;
