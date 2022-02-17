@@ -241,8 +241,7 @@ class Pool implements ArrayAccess
         return false;
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet($offset): Runnable
     {
         // TODO
     }
