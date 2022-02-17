@@ -4,7 +4,6 @@ namespace Spatie\Async;
 
 use ArrayAccess;
 use InvalidArgumentException;
-use ReturnTypeWillChange;
 use Spatie\Async\Process\ParallelProcess;
 use Spatie\Async\Process\Runnable;
 use Spatie\Async\Process\SynchronousProcess;
@@ -242,7 +241,7 @@ class Pool implements ArrayAccess
         return false;
     }
 
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         // TODO
