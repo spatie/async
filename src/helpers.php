@@ -7,12 +7,12 @@ use Spatie\Async\Runtime\ParentRuntime;
 if (! function_exists('async')) {
     /**
      * @param \Spatie\Async\Task|callable $task
-     *
+     * @param int|null $outputLength
      * @return \Spatie\Async\Process\ParallelProcess
      */
-    function async($task): Runnable
+    function async($task, ?int $outputLength = null): Runnable
     {
-        return ParentRuntime::createProcess($task);
+        return ParentRuntime::createProcess($task, $outputLength);
     }
 }
 
