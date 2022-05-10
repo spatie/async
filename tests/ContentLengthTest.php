@@ -74,4 +74,50 @@ class ContentLengthTest extends TestCase
 
         await($pool);
     }
+    
+    /** @test */
+    public function the_max_content_length_is_optional_async()
+    {
+        $pool = Pool::create();
+
+        $pool[] = async(new MyTask());
+
+        $this->assertStringContainsString('finished: 0', (string) $pool->status());
+
+        await($pool);
+
+        $this->assertStringContainsString('finished: 1', (string) $pool->status());
+    }
+    
+    /** @test */
+    public function it_can_increase_max_content_length_async()
+    {
+        $pool = Pool::create();
+
+        $longerContentLength = 1024 * 100;
+
+        $pool[] = async(new MyTask(), $longerContentLength);
+
+        $this->assertStringContainsString('finished: 0', (string) $pool->status());
+
+        await($pool);
+
+        $this->assertStringContainsString('finished: 1', (string) $pool->status());
+    }
+    
+    /** @test */
+    public function it_can_decrease_max_content_length_async()
+    {
+        $pool = Pool::create();
+
+        $shorterContentLength = 1024;
+
+        $pool[] = async(new MyTask(), $shorterContentLength);
+
+        $this->assertStringContainsString('finished: 0', (string) $pool->status());
+
+        await($pool);
+
+        $this->assertStringContainsString('finished: 1', (string) $pool->status());
+    }
 }
