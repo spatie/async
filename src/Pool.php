@@ -234,24 +234,24 @@ class Pool implements ArrayAccess
         $this->failed[$process->getPid()] = $process;
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         // TODO
 
         return false;
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): Runnable
     {
         // TODO
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->add($value);
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         // TODO
     }
