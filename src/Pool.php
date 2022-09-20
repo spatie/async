@@ -256,6 +256,11 @@ class Pool implements ArrayAccess
         // TODO
     }
 
+    public function getConcurrency(): int
+    {
+        return $this->concurrency;
+    }
+
     /**
      * @return \Spatie\Async\Process\Runnable[]
      */
@@ -333,5 +338,10 @@ class Pool implements ArrayAccess
     public function stop()
     {
         $this->stopped = true;
+    }
+
+    public function isStopped(): bool
+    {
+        return $this->stopped;
     }
 }
