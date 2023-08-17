@@ -316,6 +316,7 @@ class Pool implements ArrayAccess
              */
             if (phpversion() === '8.1.22' || phpversion() === '8.2.9') {
                 $this->handleFinishedProcess($status['pid'], $status['status']);
+
                 return;
             }
 
@@ -331,15 +332,17 @@ class Pool implements ArrayAccess
         });
     }
 
-    protected function handleFinishedProcess(int $pid, int $status) {
+    protected function handleFinishedProcess(int $pid, int $status)
+    {
         $process = $this->inProgress[$pid] ?? null;
 
-        if (!$process) {
+        if (! $process) {
             return;
         }
 
         if ($status === 0) {
             $this->markAsFinished($process);
+
             return;
         }
 
