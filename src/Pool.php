@@ -307,15 +307,16 @@ class Pool implements ArrayAccess
 
         pcntl_signal(SIGCHLD, function ($signo, $status) {
             /**
-             * PHP 8.1.22 and 8.2.9 fixed SIGCHLD handling:
+             * PHP 8.1.22 and 8.2.9 changed SIGCHLD handling:
              * https://github.com/php/php-src/pull/11509
-             * This breaks pcntl_waitpid() at the same time, so it requires special handling.
+             * This changes pcntl_waitpid() at the same time, so it requires special handling.
              *
              * It was reverted already and probably won't work in any other PHP version.
              * https://github.com/php/php-src/pull/11863
              */
             if (phpversion() === '8.1.22' || phpversion() === '8.2.9') {
                 $this->handleFinishedProcess($status['pid'], $status['status']);
+                return;
             }
 
             while (true) {
