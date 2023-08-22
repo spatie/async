@@ -4,6 +4,7 @@ namespace Spatie\Async\Runtime;
 
 use Closure;
 use Laravel\SerializableClosure\SerializableClosure;
+use Spatie\Async\FileTask;
 use Spatie\Async\Pool;
 use Spatie\Async\Process\ParallelProcess;
 use Spatie\Async\Process\Runnable;
@@ -52,7 +53,7 @@ class ParentRuntime
      *
      * @return \Spatie\Async\Process\Runnable
      */
-    public static function createProcess($task, ?int $outputLength = null, ?string $binary = 'php'): Runnable
+    public static function createProcess($task, ?int $outputLength = null, ?string $binary = 'php', ?int $max_input_size = 100000): Runnable
     {
         if (! self::$isInitialised) {
             self::init();
@@ -66,7 +67,7 @@ class ParentRuntime
             $binary,
             self::$childProcessScript,
             self::$autoloader,
-            self::encodeTask($task),
+            self::encodeTask($task, $max_input_size),
             $outputLength,
         ]);
 
@@ -78,18 +79,34 @@ class ParentRuntime
      *
      * @return string
      */
-    public static function encodeTask($task): string
+    public static function encodeTask($task, ?int $max_input_size = 100000): string
     {
         if ($task instanceof Closure) {
             $task = new SerializableClosure($task);
         }
 
-        return base64_encode(serialize($task));
+		//serialize the task. If it's too big to pass on the command line, then we'll have to write it to a file and pass the filename instead...
+		$serialized_task = base64_encode(serialize($task));
+		if (strlen($serialized_task) > $max_input_size) {
+			//write the serialized task to a temporary file...
+			$filename = tempnam(sys_get_temp_dir(), 'spatie_async_task_');
+			file_put_contents($filename, $serialized_task);
+			$file_task = new FileTask($filename);
+			$serialized_task = base64_encode(serialize($file_task));
+		}
+
+        return $serialized_task;
     }
 
     public static function decodeTask(string $task)
     {
-        return unserialize(base64_decode($task));
+        $decoded_task = unserialize(base64_decode($task));
+		if (get_class($decoded_task) == 'Spatie\Async\FileTask') {
+			$decoded_task = unserialize(base64_decode(file_get_contents($decoded_task->file)));
+			unlink($decoded_task->file);
+		}
+
+		return $decoded_task;
     }
 
     protected static function getId(): string
