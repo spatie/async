@@ -102,8 +102,9 @@ class ParentRuntime
     {
         $decoded_task = unserialize(base64_decode($task));
 		if (get_class($decoded_task) == 'Spatie\Async\FileTask') {
-			$decoded_task = unserialize(base64_decode(file_get_contents($decoded_task->file)));
-			unlink($decoded_task->file);
+			$filename = $decoded_task->file;
+			$decoded_task = unserialize(base64_decode(file_get_contents($filename)));
+			unlink($filename);
 		}
 
 		return $decoded_task;
