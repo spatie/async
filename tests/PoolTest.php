@@ -388,4 +388,24 @@ class PoolTest extends TestCase
         $this->assertGreaterThanOrEqual($stoppingPoint, $completedProcessesCount);
         $this->assertLessThanOrEqual($concurrency * 2, $completedProcessesCount);
     }
+
+    /** @test */
+    public function it_writes_large_serialized_tasks_to_file()
+    {
+        $pool = Pool::create()->maxTaskPayload(10);
+
+        $counter = 0;
+
+        foreach (range(1, 5) as $i) {
+            $pool->add(function () {
+                return 2;
+            })->then(function (int $output) use (&$counter) {
+                $counter += $output;
+            });
+        }
+
+        $pool->wait();
+
+        $this->assertEquals(10, $counter, (string) $pool->status());
+    }
 }
