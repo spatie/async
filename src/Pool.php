@@ -41,6 +41,8 @@ class Pool implements ArrayAccess
 
     protected $binary = PHP_BINARY;
 
+	protected $max_input_size = 100000;
+
     public function __construct()
     {
         if (static::isSupported()) {
@@ -109,6 +111,13 @@ class Pool implements ArrayAccess
         return $this;
     }
 
+    public function maxInputSize(int $max_size): self
+    {
+        $this->max_input_size = $max_size;
+
+        return $this;
+    }
+
     public function notify()
     {
         if (count($this->inProgress) >= $this->concurrency) {
@@ -140,7 +149,8 @@ class Pool implements ArrayAccess
             $process = ParentRuntime::createProcess(
                 $process,
                 $outputLength,
-                $this->binary
+                $this->binary,
+				$this->max_input_size
             );
         }
 
