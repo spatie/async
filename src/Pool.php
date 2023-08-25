@@ -310,6 +310,20 @@ class Pool implements ArrayAccess
         pcntl_async_signals(true);
 
         pcntl_signal(SIGCHLD, function ($signo, $status) {
+            /**
+             * PHP 8.1.22 and 8.2.9 changed SIGCHLD handling:
+             * https://github.com/php/php-src/pull/11509
+             * This changes pcntl_waitpid() at the same time, so it requires special handling.
+             *
+             * It was reverted already and probably won't work in any other PHP version.
+             * https://github.com/php/php-src/pull/11863
+             */
+            if (phpversion() === '8.1.22' || phpversion() === '8.2.9') {
+                $this->handleFinishedProcess($status['pid'], $status['status']);
+
+                return;
+            }
+
             while (true) {
                 $pid = pcntl_waitpid(-1, $processState, WNOHANG | WUNTRACED);
 
@@ -317,21 +331,26 @@ class Pool implements ArrayAccess
                     break;
                 }
 
-                $process = $this->inProgress[$pid] ?? null;
-
-                if (! $process) {
-                    continue;
-                }
-
-                if ($status['status'] === 0) {
-                    $this->markAsFinished($process);
-
-                    continue;
-                }
-
-                $this->markAsFailed($process);
+                $this->handleFinishedProcess($pid, $status['status']);
             }
         });
+    }
+
+    protected function handleFinishedProcess(int $pid, int $status)
+    {
+        $process = $this->inProgress[$pid] ?? null;
+
+        if (! $process) {
+            return;
+        }
+
+        if ($status === 0) {
+            $this->markAsFinished($process);
+
+            return;
+        }
+
+        $this->markAsFailed($process);
     }
 
     public function stop()
