@@ -41,7 +41,7 @@ class Pool implements ArrayAccess
 
     protected $binary = PHP_BINARY;
 
-	protected $max_input_size = 100000;
+    protected $max_input_size = 100000;
 
     public function __construct()
     {
@@ -150,7 +150,7 @@ class Pool implements ArrayAccess
                 $process,
                 $outputLength,
                 $this->binary,
-				$this->max_input_size
+                $this->max_input_size
             );
         }
 

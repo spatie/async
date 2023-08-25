@@ -85,15 +85,15 @@ class ParentRuntime
             $task = new SerializableClosure($task);
         }
 
-		//serialize the task. If it's too big to pass on the command line, then we'll have to write it to a file and pass the filename instead...
-		$serialized_task = base64_encode(serialize($task));
-		if (strlen($serialized_task) > $max_input_size) {
-			//write the serialized task to a temporary file...
-			$filename = tempnam(sys_get_temp_dir(), 'spatie_async_task_');
-			file_put_contents($filename, $serialized_task);
-			$file_task = new FileTask($filename);
-			$serialized_task = base64_encode(serialize($file_task));
-		}
+        //serialize the task. If it's too big to pass on the command line, then we'll have to write it to a file and pass the filename instead...
+        $serialized_task = base64_encode(serialize($task));
+        if (strlen($serialized_task) > $max_input_size) {
+            //write the serialized task to a temporary file...
+            $filename = tempnam(sys_get_temp_dir(), 'spatie_async_task_');
+            file_put_contents($filename, $serialized_task);
+            $file_task = new FileTask($filename);
+            $serialized_task = base64_encode(serialize($file_task));
+        }
 
         return $serialized_task;
     }
@@ -101,13 +101,13 @@ class ParentRuntime
     public static function decodeTask(string $task)
     {
         $decoded_task = unserialize(base64_decode($task));
-		if (get_class($decoded_task) == 'Spatie\Async\FileTask') {
-			$filename = $decoded_task->file;
-			$decoded_task = unserialize(base64_decode(file_get_contents($filename)));
-			unlink($filename);
-		}
+        if (get_class($decoded_task) == 'Spatie\Async\FileTask') {
+            $filename = $decoded_task->file;
+            $decoded_task = unserialize(base64_decode(file_get_contents($filename)));
+            unlink($filename);
+        }
 
-		return $decoded_task;
+        return $decoded_task;
     }
 
     protected static function getId(): string
