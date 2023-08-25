@@ -337,6 +337,26 @@ class PoolTest extends TestCase
     }
 
     /** @test */
+    public function it_takes_a_cancellable_intermediate_callback()
+    {
+        $pool = Pool::create();
+
+        $isVisited = false;
+        $pool[] = async(function () {
+            sleep(2);
+        })->then(function () use (&$isVisited) {
+            $isVisited = true;
+        });
+
+        $pool->wait(function () {
+            // Returning true should quit waiting before the task is completed
+            return true;
+        });
+
+        $this->assertFalse($isVisited);
+    }
+
+    /** @test */
     public function it_can_be_stopped_early()
     {
         $concurrency = 20;
