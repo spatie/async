@@ -149,6 +149,10 @@ class Pool implements ArrayAccess
         return $process;
     }
 
+    /**
+     * @param callable|null $intermediateCallback Will be called every loop we wait for processes to finish. Return `false` to stop execution of the queue.
+     * @return array
+     */
     public function wait(?callable $intermediateCallback = null): array
     {
         while ($this->inProgress) {
