@@ -28,12 +28,12 @@ class ParentRuntime
 
     public static function init(string $autoloader = null)
     {
-        if (! $autoloader) {
+        if (!$autoloader) {
             $existingAutoloaderFiles = array_filter([
-                __DIR__.'/../../../../autoload.php',
-                __DIR__.'/../../../autoload.php',
-                __DIR__.'/../../vendor/autoload.php',
-                __DIR__.'/../../../vendor/autoload.php',
+                __DIR__ . '/../../../../autoload.php',
+                __DIR__ . '/../../../autoload.php',
+                __DIR__ . '/../../vendor/autoload.php',
+                __DIR__ . '/../../../vendor/autoload.php',
             ], function (string $path) {
                 return file_exists($path);
             });
@@ -42,7 +42,7 @@ class ParentRuntime
         }
 
         self::$autoloader = $autoloader;
-        self::$childProcessScript = __DIR__.'/ChildRuntime.php';
+        self::$childProcessScript = __DIR__ . '/ChildRuntime.php';
 
         self::$isInitialised = true;
     }
@@ -55,11 +55,11 @@ class ParentRuntime
      */
     public static function createProcess($task, ?int $outputLength = null, ?string $binary = 'php', ?int $max_input_size = 100000): Runnable
     {
-        if (! self::$isInitialised) {
+        if (!self::$isInitialised) {
             self::init();
         }
 
-        if (! Pool::isSupported()) {
+        if (!Pool::isSupported()) {
             return SynchronousProcess::create($task, self::getId());
         }
 
@@ -79,35 +79,36 @@ class ParentRuntime
      *
      * @return string
      */
-    public static function encodeTask($task, ?int $max_input_size = 100000): string
+    public static function encodeTask($task, ?int $maxTaskPayloadInBytes = 100000): string
     {
         if ($task instanceof Closure) {
             $task = new SerializableClosure($task);
         }
 
-        //serialize the task. If it's too big to pass on the command line, then we'll have to write it to a file and pass the filename instead...
-        $serialized_task = base64_encode(serialize($task));
-        if (strlen($serialized_task) > $max_input_size) {
-            //write the serialized task to a temporary file...
+        $serializedTask = base64_encode(serialize($task));
+
+        if (strlen($serializedTask) > $maxTaskPayloadInBytes) {
+            // Write the serialized task to a temporary file and package it as a `FileTask`:
             $filename = tempnam(sys_get_temp_dir(), 'spatie_async_task_');
-            file_put_contents($filename, $serialized_task);
+            file_put_contents($filename, $serializedTask);
             $file_task = new FileTask($filename);
-            $serialized_task = base64_encode(serialize($file_task));
+            $serializedTask = base64_encode(serialize($file_task));
         }
 
-        return $serialized_task;
+        return $serializedTask;
     }
 
     public static function decodeTask(string $task)
     {
-        $decoded_task = unserialize(base64_decode($task));
-        if (get_class($decoded_task) == 'Spatie\Async\FileTask') {
-            $filename = $decoded_task->file;
-            $decoded_task = unserialize(base64_decode(file_get_contents($filename)));
+        $decodedTask = unserialize(base64_decode($task));
+
+        if (get_class($decodedTask) === 'Spatie\Async\FileTask') {
+            $filename = $decodedTask->file;
+            $decodedTask = unserialize(base64_decode(file_get_contents($filename)));
             unlink($filename);
         }
 
-        return $decoded_task;
+        return $decodedTask;
     }
 
     protected static function getId(): string
@@ -118,6 +119,6 @@ class ParentRuntime
 
         self::$currentId += 1;
 
-        return (string) self::$currentId.(string) self::$myPid;
+        return (string)self::$currentId . (string)self::$myPid;
     }
 }

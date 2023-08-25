@@ -41,7 +41,7 @@ class Pool implements ArrayAccess
 
     protected $binary = PHP_BINARY;
 
-    protected $max_input_size = 100000;
+    protected $maxTaskPayloadInBytes = 100000;
 
     public function __construct()
     {
@@ -66,7 +66,7 @@ class Pool implements ArrayAccess
             function_exists('pcntl_async_signals')
             && function_exists('posix_kill')
             && function_exists('proc_open')
-            && ! self::$forceSynchronous;
+            && !self::$forceSynchronous;
     }
 
     public function forceSynchronous(): self
@@ -111,9 +111,9 @@ class Pool implements ArrayAccess
         return $this;
     }
 
-    public function maxInputSize(int $max_size): self
+    public function maxTaskPayload(int $maxSizeInBytes): self
     {
-        $this->max_input_size = $max_size;
+        $this->maxTaskPayloadInBytes = $maxSizeInBytes;
 
         return $this;
     }
@@ -126,7 +126,7 @@ class Pool implements ArrayAccess
 
         $process = array_shift($this->queue);
 
-        if (! $process) {
+        if (!$process) {
             return;
         }
 
@@ -141,16 +141,16 @@ class Pool implements ArrayAccess
      */
     public function add($process, ?int $outputLength = null): Runnable
     {
-        if (! is_callable($process) && ! $process instanceof Runnable) {
+        if (!is_callable($process) && !$process instanceof Runnable) {
             throw new InvalidArgumentException('The process passed to Pool::add should be callable.');
         }
 
-        if (! $process instanceof Runnable) {
+        if (!$process instanceof Runnable) {
             $process = ParentRuntime::createProcess(
                 $process,
                 $outputLength,
                 $this->binary,
-                $this->max_input_size
+                $this->maxTaskPayloadInBytes
             );
         }
 
@@ -176,7 +176,7 @@ class Pool implements ArrayAccess
                 }
             }
 
-            if (! $this->inProgress) {
+            if (!$this->inProgress) {
                 break;
             }
 
@@ -350,7 +350,7 @@ class Pool implements ArrayAccess
     {
         $process = $this->inProgress[$pid] ?? null;
 
-        if (! $process) {
+        if (!$process) {
             return;
         }
 
