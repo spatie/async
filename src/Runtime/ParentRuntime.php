@@ -28,7 +28,7 @@ class ParentRuntime
 
     public static function init(string $autoloader = null)
     {
-        if (!$autoloader) {
+        if (! $autoloader) {
             $existingAutoloaderFiles = array_filter([
                 __DIR__ . '/../../../../autoload.php',
                 __DIR__ . '/../../../autoload.php',
@@ -55,11 +55,11 @@ class ParentRuntime
      */
     public static function createProcess($task, ?int $outputLength = null, ?string $binary = 'php', ?int $max_input_size = 100000): Runnable
     {
-        if (!self::$isInitialised) {
+        if (! self::$isInitialised) {
             self::init();
         }
 
-        if (!Pool::isSupported()) {
+        if (! Pool::isSupported()) {
             return SynchronousProcess::create($task, self::getId());
         }
 
