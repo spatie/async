@@ -17,6 +17,7 @@ class Pool implements ArrayAccess
     protected $tasksPerProcess = 1;
     protected $timeout = 300;
     protected $sleepTime = 50000;
+    protected $memoryEfficient = false;
 
     /** @var \Spatie\Async\Process\Runnable[] */
     protected $queue = [];
@@ -79,6 +80,13 @@ class Pool implements ArrayAccess
     public function concurrency(int $concurrency): self
     {
         $this->concurrency = $concurrency;
+
+        return $this;
+    }
+
+    public function memoryEfficient(bool $bool = true): self
+    {
+        $this->memoryEfficient = $bool;
 
         return $this;
     }
@@ -220,9 +228,13 @@ class Pool implements ArrayAccess
 
         $this->notify();
 
-        $this->results[] = $process->triggerSuccess();
+        $result = $process->triggerSuccess();
 
-        $this->finished[$process->getPid()] = $process;
+        if(! $this->memoryEfficient)
+        {
+            $this->results[] = $result;
+            $this->finished[$process->getPid()] = $process;
+        }
     }
 
     public function markAsTimedOut(Runnable $process)

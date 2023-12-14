@@ -5,3 +5,4 @@ vendor
 tests/another-php-binary
 .php_cs.cache
 .php-cs-fixer.cache
+.idea
