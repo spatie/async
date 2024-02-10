@@ -7,9 +7,9 @@ use Throwable;
 
 trait ProcessCallbacks
 {
-    protected $successCallbacks = [];
-    protected $errorCallbacks = [];
-    protected $timeoutCallbacks = [];
+    protected array $successCallbacks = [];
+    protected array $errorCallbacks = [];
+    protected array $timeoutCallbacks = [];
 
     public function then(callable $callback): self
     {

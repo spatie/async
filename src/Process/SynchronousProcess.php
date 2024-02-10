@@ -8,13 +8,14 @@ use Throwable;
 class SynchronousProcess implements Runnable
 {
     use ProcessCallbacks;
-    protected $id;
+
+    protected int $id;
 
     protected $task;
 
     protected $output;
     protected $errorOutput;
-    protected $executionTime;
+    protected float $executionTime;
 
     public function __construct(callable $task, int $id)
     {

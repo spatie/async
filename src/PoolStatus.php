@@ -7,7 +7,7 @@ use Spatie\Async\Process\ParallelProcess;
 
 class PoolStatus
 {
-    protected $pool;
+    protected Pool $pool;
 
     public function __construct(Pool $pool)
     {

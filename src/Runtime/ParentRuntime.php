@@ -13,18 +13,15 @@ use Symfony\Component\Process\Process;
 
 class ParentRuntime
 {
-    /** @var bool */
-    protected static $isInitialised = false;
+    protected static bool $isInitialised = false;
 
-    /** @var string */
-    protected static $autoloader;
+    protected static string $autoloader;
 
-    /** @var string */
-    protected static $childProcessScript;
+    protected static string $childProcessScript;
 
-    protected static $currentId = 0;
+    protected static int $currentId = 0;
 
-    protected static $myPid = null;
+    protected static ?int $myPid = null;
 
     public static function init(string $autoloader = null)
     {

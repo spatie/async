@@ -11,37 +11,37 @@ use Spatie\Async\Runtime\ParentRuntime;
 
 class Pool implements ArrayAccess
 {
-    public static $forceSynchronous = false;
+    public static bool $forceSynchronous = false;
 
-    protected $concurrency = 20;
-    protected $tasksPerProcess = 1;
-    protected $timeout = 300;
-    protected $sleepTime = 50000;
+    protected int $concurrency = 20;
+    protected int $tasksPerProcess = 1;
+    protected float $timeout = 300;
+    protected int $sleepTime = 50000;
 
-    /** @var \Spatie\Async\Process\Runnable[] */
-    protected $queue = [];
+    /** @var Runnable[] */
+    protected array $queue = [];
 
-    /** @var \Spatie\Async\Process\Runnable[] */
-    protected $inProgress = [];
+    /** @var Runnable[] */
+    protected array $inProgress = [];
 
-    /** @var \Spatie\Async\Process\Runnable[] */
-    protected $finished = [];
+    /** @var Runnable[] */
+    protected array $finished = [];
 
-    /** @var \Spatie\Async\Process\Runnable[] */
-    protected $failed = [];
+    /** @var Runnable[] */
+    protected array $failed = [];
 
-    /** @var \Spatie\Async\Process\Runnable[] */
-    protected $timeouts = [];
+    /** @var Runnable[] */
+    protected array $timeouts = [];
 
-    protected $results = [];
+    protected array $results = [];
 
-    protected $status;
+    protected PoolStatus $status;
 
-    protected $stopped = false;
+    protected bool $stopped = false;
 
-    protected $binary = PHP_BINARY;
+    protected string $binary = PHP_BINARY;
 
-    protected $maxTaskPayloadInBytes = 100000;
+    protected int $maxTaskPayloadInBytes = 100000;
 
     public function __construct()
     {
@@ -134,10 +134,10 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @param \Spatie\Async\Process\Runnable|callable $process
+     * @param Runnable|callable $process
      * @param int|null $outputLength
      *
-     * @return \Spatie\Async\Process\Runnable
+     * @return Runnable
      */
     public function add($process, ?int $outputLength = null): Runnable
     {
@@ -271,7 +271,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process\Runnable[]
+     * @return Runnable[]
      */
     public function getQueue(): array
     {
@@ -279,7 +279,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process\Runnable[]
+     * @return Runnable[]
      */
     public function getInProgress(): array
     {
@@ -287,7 +287,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process\Runnable[]
+     * @return Runnable[]
      */
     public function getFinished(): array
     {
@@ -295,7 +295,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process\Runnable[]
+     * @return Runnable[]
      */
     public function getFailed(): array
     {
@@ -303,7 +303,7 @@ class Pool implements ArrayAccess
     }
 
     /**
-     * @return \Spatie\Async\Process\Runnable[]
+     * @return Runnable[]
      */
     public function getTimeouts(): array
     {

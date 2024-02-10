@@ -4,11 +4,9 @@ namespace Spatie\Async\Output;
 
 class ParallelException extends \Exception
 {
-    /** @var string */
-    protected $originalClass;
+    protected string $originalClass;
 
-    /** @var string */
-    protected $originalTrace;
+    protected string $originalTrace;
 
     public function __construct(string $message, string $originalClass, string $originalTrace)
     {
@@ -17,13 +15,11 @@ class ParallelException extends \Exception
         $this->originalTrace = $originalTrace;
     }
 
-    /** @return string */
     public function getOriginalClass(): string
     {
         return $this->originalClass;
     }
 
-    /** @return string */
     public function getOriginalTrace(): string
     {
         return $this->originalTrace;
