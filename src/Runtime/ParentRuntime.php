@@ -53,7 +53,7 @@ class ParentRuntime
      *
      * @return \Spatie\Async\Process\Runnable
      */
-    public static function createProcess($task, ?int $outputLength = null, ?string $binary = 'php', ?int $max_input_size = 100000): Runnable
+    public static function createProcess($task, ?int $outputLength = null, ?string $binary = 'php', ?int $max_input_size = 100000, ?int $memory_limit = 0): Runnable
     {
         if (! self::$isInitialised) {
             self::init();
@@ -63,13 +63,17 @@ class ParentRuntime
             return SynchronousProcess::create($task, self::getId());
         }
 
-        $process = new Process([
-            $binary,
-            self::$childProcessScript,
-            self::$autoloader,
-            self::encodeTask($task, $max_input_size),
-            $outputLength,
-        ]);
+		$command = [$binary];
+		if ($memory_limit > 0) {
+			$command[] = '--define';
+			$command[] = 'memory_limit='.$memory_limit;
+		}
+		$command[] = self::$childProcessScript;
+		$command[] = self::$autoloader;
+		$command[] = self::encodeTask($task, $max_input_size);
+		$command[] = $outputLength;
+
+        $process = new Process($command);
 
         return ParallelProcess::create($process, self::getId());
     }
