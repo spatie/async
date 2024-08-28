@@ -25,7 +25,7 @@ try {
 
     $output = call_user_func($task);
 
-    $serializedOutput = base64_encode(serialize($output));
+    $serializedOutput = base64_encode(serialize(['output' => $output]));
 
     if (strlen($serializedOutput) > $outputLength) {
         throw \Spatie\Async\Output\ParallelError::outputTooLarge($outputLength);
@@ -39,7 +39,7 @@ try {
 
     $output = new \Spatie\Async\Output\SerializableException($exception);
 
-    fwrite(STDERR, base64_encode(serialize($output)));
+    fwrite(STDERR, base64_encode(serialize(['output' => $output])));
 
     exit(1);
 }
