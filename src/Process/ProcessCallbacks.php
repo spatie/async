@@ -34,13 +34,13 @@ trait ProcessCallbacks
 
     public function triggerSuccess()
     {
+        $output = $this->getOutput();
+
         if ($this->getErrorOutput()) {
             $this->triggerError();
 
             return;
         }
-
-        $output = $this->getOutput();
 
         foreach ($this->successCallbacks as $callback) {
             call_user_func_array($callback, [$output]);
