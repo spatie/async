@@ -12,6 +12,7 @@
     convertWarningsToExceptions="true"
     processIsolation="false"
     stopOnFailure="false"
+    beStrictAboutTestsThatDoNotTestAnything="true"
 >
     <coverage>
         <include>

@@ -168,6 +168,22 @@ class ErrorHandlingTest extends TestCase
     }
 
     /** @test */
+    public function it_handles_stdout_as_parallel_error()
+    {
+        $pool = Pool::create();
+
+        $pool->add(function () {
+            fwrite(STDOUT, 'test');
+        })->then(function ($output) {
+            $this->fail('Child process output did not error on faulty output');
+        })->catch(function (ParallelError $error) {
+            $this->assertStringContainsString('test', $error->getMessage());
+        });
+
+        $pool->wait();
+    }
+
+    /** @test */
     public function deep_syntax_errors_are_thrown()
     {
         $pool = Pool::create();
