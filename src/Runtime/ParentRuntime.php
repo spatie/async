@@ -26,7 +26,7 @@ class ParentRuntime
 
     protected static $myPid = null;
 
-    public static function init(string $autoloader = null)
+    public static function init(?string $autoloader = null)
     {
         if (! $autoloader) {
             $existingAutoloaderFiles = array_filter([
