@@ -408,4 +408,46 @@ class PoolTest extends TestCase
 
         $this->assertEquals(10, $counter, (string) $pool->status());
     }
+
+    /** @test */
+    public function it_does_memory_footprint_controllable_by_clearing_results_issue_235()
+    {
+        $pool = Pool::create();
+        $this->assertEquals('queue: 0 - finished: 0 - failed: 0 - timeout: 0', trim($pool->status()->__toString()));
+        gc_collect_cycles();
+        $memUsageBefore = memory_get_usage();
+        $cntTasks = 30; // sane value to test, increasing above >500 takes a substantial time to test
+        foreach (range(1, $cntTasks) as $i) {
+            $pool->add(function () { return 1; });
+        }
+        $pool->wait();
+        $this->assertEquals('queue: 0 - finished: ' . $cntTasks . ' - failed: 0 - timeout: 0', trim($pool->status()->__toString()));
+        gc_collect_cycles();
+        $memUsageAfter1000Tasks = memory_get_usage();
+        $etaTaskMemFootprint = ($memUsageAfter1000Tasks - $memUsageBefore) / $cntTasks;
+        $pool->clearResults();
+        $pool->clearFinished();
+        $this->assertEquals('queue: 0 - finished: 0 - failed: 0 - timeout: 0', trim($pool->status()->__toString()));
+        gc_collect_cycles();
+        $memUsageAfter1000TasksWiped = memory_get_usage();
+        $etaTaskMemFootprintWiped = ($memUsageAfter1000TasksWiped - $memUsageBefore) / $cntTasks;
+        // dd($etaTaskMemFootprint . ' bytes --> ' . $etaTaskMemFootprintWiped . ' bytes per task');
+
+        /**
+         * tested with   1 tasks: "4928 bytes --> 824 bytes per task"
+         * tested with  10 tasks: "3769.6 bytes --> 114.4 bytes per task"
+         * tested with 100 tasks: "3678.08 bytes --> 17.84 bytes per task"
+         * tested with 300 tasks: "3939.4133333333 bytes --> 277.94666666667 bytes per task"
+         * tested with 600 tasks: "3970.9866666667 bytes --> 316.46666666667 bytes per task"
+         * tested with 600 tasks: "3970.9866666667 bytes --> 316.46666666667 bytes per task"
+         * tested with 10000 tasks: "3995.3432 bytes --> 351.176 bytes per task"
+         * the memory footprint of the results of one task is ~3-4KB
+         * eg: when one task is run every second, this yields a memory requirement of 3KB * 3600 * 24 = 260MB per day runtime
+         * When the result is wiped instead the memory footprint is (at least) an order of magnitude less, maybe even less / no mem leak at all.
+         */
+        $this->assertTrue($etaTaskMemFootprint > 3000 && $etaTaskMemFootprint < 5000,
+            'memory footprint without wipe not as axpected, etaTaskMemFootprint: ' . $etaTaskMemFootprint);
+        $this->assertTrue($etaTaskMemFootprintWiped > 0 && $etaTaskMemFootprintWiped < 500,
+            'memory footprint with wipe not as axpected, etaTaskMemFootprintWiped: ' . $etaTaskMemFootprintWiped);
+    }
 }
