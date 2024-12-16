@@ -7,10 +7,12 @@ $finder = Symfony\Component\Finder\Finder::create()
     ])
     ->name('*.php')
     ->notName('*.blade.php')
+    ->notName('ClassWithSyntaxError.php')
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
 
 return (new PhpCsFixer\Config())
+    ->setRiskyAllowed(true)
     ->setRules([
         '@PSR12' => true,
         'array_syntax' => ['syntax' => 'short'],
