@@ -15,7 +15,8 @@ class ChildRuntimeTest extends TestCase
         $autoloader = __DIR__.'/../vendor/autoload.php';
 
         $serializedClosure = base64_encode(serialize(new SerializableClosure(function () {
-            echo 'child';
+            echo 'interfere with output';
+            return 'child';
         })));
 
         $process = new Process([
@@ -28,7 +29,10 @@ class ChildRuntimeTest extends TestCase
         $process->start();
 
         $process->wait();
+        $output = unserialize(base64_decode($process->getOutput()));
 
-        $this->assertStringContainsString('child', $process->getOutput());
+        $this->assertIsArray($output);
+        $this->assertArrayHasKey('output', $output);
+        $this->assertStringContainsString('child', $output['output']);
     }
 }
