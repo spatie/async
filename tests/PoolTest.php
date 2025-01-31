@@ -445,9 +445,13 @@ class PoolTest extends TestCase
          * eg: when one task is run every second, this yields a memory requirement of 3KB * 3600 * 24 = 260MB per day runtime
          * When the result is wiped instead the memory footprint is (at least) an order of magnitude less, maybe even less / no mem leak at all.
          */
-        $this->assertTrue($etaTaskMemFootprint > 3000 && $etaTaskMemFootprint < 5000,
-            'memory footprint without wipe not as axpected, etaTaskMemFootprint: ' . $etaTaskMemFootprint);
-        $this->assertTrue($etaTaskMemFootprintWiped > 0 && $etaTaskMemFootprintWiped < 500,
-            'memory footprint with wipe not as axpected, etaTaskMemFootprintWiped: ' . $etaTaskMemFootprintWiped);
+        $this->assertTrue(
+            $etaTaskMemFootprint > 3000 && $etaTaskMemFootprint < 5000,
+            'memory footprint without wipe not as axpected, etaTaskMemFootprint: ' . $etaTaskMemFootprint
+        );
+        $this->assertTrue(
+            $etaTaskMemFootprintWiped > 0 && $etaTaskMemFootprintWiped < 500,
+            'memory footprint with wipe not as axpected, etaTaskMemFootprintWiped: ' . $etaTaskMemFootprintWiped
+        );
     }
 }

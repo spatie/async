@@ -377,5 +377,4 @@ class Pool implements ArrayAccess
     {
         $this->results = [];
     }
-
 }
