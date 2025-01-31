@@ -68,15 +68,15 @@ class ParallelProcess implements Runnable
         if (! $this->output) {
             $processOutput = $this->process->getOutput();
 
-			$childResult = @unserialize(base64_decode($processOutput));
+            $childResult = @unserialize(base64_decode($processOutput));
 
             if ($childResult === false || ! array_key_exists('output', $childResult)) {
                 $this->errorOutput = $processOutput;
 
-				return null;
+                return null;
             }
 
-			$this->output = $childResult['output'];
+            $this->output = $childResult['output'];
         }
 
         return $this->output;
@@ -87,13 +87,13 @@ class ParallelProcess implements Runnable
         if (! $this->errorOutput) {
             $processOutput = $this->process->getErrorOutput();
 
-			$childResult = @unserialize(base64_decode($processOutput));
+            $childResult = @unserialize(base64_decode($processOutput));
 
             if ($childResult === false || ! array_key_exists('output', $childResult)) {
                 $this->errorOutput = $processOutput;
-			} else {
-				$this->errorOutput = $childResult['output'];
-			}
+            } else {
+                $this->errorOutput = $childResult['output'];
+            }
         }
 
         return $this->errorOutput;

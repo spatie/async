@@ -4,7 +4,7 @@ use Spatie\Async\Runtime\ParentRuntime;
 
 // php://stdout does not obey output buffering. Any output would break
 // unserialization of child process results in the parent process.
-if (!defined('STDOUT')) {
+if (! defined('STDOUT')) {
     define('STDOUT', fopen('php://temp', 'w+b'));
     define('STDERR', fopen('php://stderr', 'wb'));
 }

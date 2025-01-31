@@ -16,6 +16,7 @@ class ChildRuntimeTest extends TestCase
 
         $serializedClosure = base64_encode(serialize(new SerializableClosure(function () {
             echo 'interfere with output';
+
             return 'child';
         })));
 
