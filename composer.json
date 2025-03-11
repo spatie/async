@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "laravel/serializable-closure": "^2.0",
         "symfony/process": "^7.2"
     },
