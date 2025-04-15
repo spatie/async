@@ -1,9 +1,19 @@
-# Asynchronous and parallel PHP
+<div align="left">
+    <a href="https://spatie.be/open-source?utm_source=github&utm_medium=banner&utm_campaign=async">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://spatie.be/packages/header/async/html/dark.webp">
+        <img alt="Logo for async" src=" https://spatie.be/packages/header/async/html/light.webp" height="190">
+      </picture>
+    </a>
+
+<h1>Asynchronous and parallel PHP</h1>
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/async.svg?style=flat-square)](https://packagist.org/packages/spatie/async)
 ![Tests Status](https://img.shields.io/github/actions/workflow/status/spatie/async/run-tests.yml)
 [![Quality Score](https://img.shields.io/scrutinizer/g/spatie/async.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/async)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/async.svg?style=flat-square)](https://packagist.org/packages/spatie/async)
+    
+</div>
 
 This library provides a small and easy wrapper around PHP's PCNTL extension.
 It allows running of different processes in parallel, with an easy-to-use API.
