@@ -14,8 +14,9 @@ class ParallelProcess implements Runnable
     protected $id;
     protected $pid;
 
-    protected $output;
-    protected $errorOutput;
+    protected $output = [];
+    protected $capturedOtherOutput;
+    protected $errorOutput = [];
 
     protected $startTime;
 
@@ -66,20 +67,35 @@ class ParallelProcess implements Runnable
     public function getOutput()
     {
         if (! $this->output) {
-            $processOutput = $this->process->getOutput();
-
-            $childResult = @unserialize(base64_decode($processOutput));
-
-            if ($childResult === false || ! array_key_exists('output', $childResult)) {
-                $this->errorOutput = $processOutput;
-
-                return null;
-            }
-
-            $this->output = $childResult['output'];
+            $this->readProcessOutput();
         }
 
         return $this->output;
+    }
+
+    public function getCapturedOtherOutput(): ?array
+    {
+        if (! $this->capturedOtherOutput) {
+            $this->readProcessOutput();
+        }
+
+        return $this->capturedOtherOutput;
+    }
+
+    private function readProcessOutput(): void
+    {
+        $processOutput = $this->process->getOutput();
+        $allOutput = array_map(fn($line) => json_decode($line, true) ?? $line, explode("\n", trim($processOutput)));
+
+        $taskOutput = array_pop($allOutput);
+        $childResult = @unserialize(base64_decode($taskOutput));
+
+        $this->capturedOtherOutput = $allOutput;
+        if ($childResult === false || ! array_key_exists('output', $childResult)) {
+            $this->errorOutput = $taskOutput;
+        }
+
+        $this->output = $childResult['output'];
     }
 
     public function getErrorOutput()
