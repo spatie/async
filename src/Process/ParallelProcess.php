@@ -15,7 +15,7 @@ class ParallelProcess implements Runnable
     protected $pid;
 
     protected $output = [];
-    protected $capturedOtherOutput;
+    protected $capturedOtherOutput = [];
     protected $errorOutput = [];
 
     protected $startTime;
@@ -73,7 +73,7 @@ class ParallelProcess implements Runnable
         return $this->output;
     }
 
-    public function getCapturedOtherOutput(): ?array
+    public function getCapturedOtherOutput(): array
     {
         if (! $this->capturedOtherOutput) {
             $this->readProcessOutput();
