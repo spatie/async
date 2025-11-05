@@ -88,14 +88,18 @@ class ParallelProcess implements Runnable
         $allOutput = array_map(fn($line) => json_decode($line, true) ?? $line, explode("\n", trim($processOutput)));
 
         $taskOutput = array_pop($allOutput);
-        $childResult = @unserialize(base64_decode($taskOutput));
-
         $this->capturedOtherOutput = $allOutput;
-        if ($childResult === false || ! array_key_exists('output', $childResult)) {
-            $this->errorOutput = $taskOutput;
-        }
 
-        $this->output = $childResult['output'];
+        if (!is_string($taskOutput)) {
+            $this->errorOutput = 'Unexpected output: ' . var_export($taskOutput, true);
+        } else {
+            $childResult = @unserialize(base64_decode($taskOutput));
+
+            if ($childResult === false || ! array_key_exists('output', $childResult)) {
+                $this->errorOutput = $taskOutput;
+            }
+            $this->output = $childResult['output'];
+        }
     }
 
     public function getErrorOutput()
