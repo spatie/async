@@ -35,6 +35,7 @@ trait ProcessCallbacks
     public function triggerSuccess()
     {
         $output = $this->getOutput();
+        $capturedOtherOutput = $this->getCapturedOtherOutput();
 
         if ($this->getErrorOutput()) {
             $this->triggerError();
@@ -43,7 +44,7 @@ trait ProcessCallbacks
         }
 
         foreach ($this->successCallbacks as $callback) {
-            call_user_func_array($callback, [$output]);
+            call_user_func_array($callback, [$output, $capturedOtherOutput]);
         }
 
         return $output;
