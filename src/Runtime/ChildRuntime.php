@@ -43,7 +43,7 @@ try {
         throw \Spatie\Async\Output\ParallelError::outputTooLarge($outputLength);
     }
 
-    fwrite(STDOUT, $serializedOutput);
+    fwrite(STDOUT, json_encode(['spatieTaskOutput' => $serializedOutput]) . PHP_EOL);
 
     exit(0);
 } catch (Throwable $exception) {

@@ -85,22 +85,19 @@ class ParallelProcess implements Runnable
     private function readProcessOutput(): void
     {
         $processOutput = $this->process->getOutput();
-        $allOutput = array_map(fn($line) => json_decode($line, true) ?? $line, explode("\n", trim($processOutput)));
 
-        $taskOutput = array_pop($allOutput);
-        $this->capturedOtherOutput = $allOutput;
+        $this->capturedOtherOutput = [];
+        foreach (array_map(fn($line) => json_decode($line, true) ?? $line, explode("\n", trim($processOutput))) as $output) {
+            if (is_array($output) && isset($output['spatieTaskOutput'])) {
+                $childResult = @unserialize(base64_decode($output['spatieTaskOutput']));
 
-        if (!is_string($taskOutput)) {
-            // task seems to not have a real output but only other output.
-            // Maybe because of an exception which will be handled in getErrorOutput()
-            $this->output = [];
-        } else {
-            $childResult = @unserialize(base64_decode($taskOutput));
-
-            if ($childResult === false || ! array_key_exists('output', $childResult)) {
-                $this->errorOutput = $taskOutput;
+                if ($childResult === false || ! array_key_exists('output', $childResult)) {
+                    $this->errorOutput = $output['spatieTaskOutput'];
+                }
+                $this->output = $childResult['output'];
+            } else {
+                $this->capturedOtherOutput[] = $output;
             }
-            $this->output = $childResult['output'];
         }
     }
 
