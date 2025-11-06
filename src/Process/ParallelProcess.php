@@ -91,7 +91,9 @@ class ParallelProcess implements Runnable
         $this->capturedOtherOutput = $allOutput;
 
         if (!is_string($taskOutput)) {
-            $this->errorOutput = 'Unexpected output: ' . var_export($taskOutput, true);
+            // task seems to not have a real output but only other output.
+            // Maybe because of an exception which will be handled in getErrorOutput()
+            $this->output = [];
         } else {
             $childResult = @unserialize(base64_decode($taskOutput));
 
