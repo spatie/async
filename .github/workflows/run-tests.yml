@@ -9,7 +9,7 @@ jobs:
             fail-fast: true
             matrix:
                 os: [ubuntu-latest]
-                php: [8.3, 8.4]
+                php: [8.3, 8.4, 8.5]
                 stability: [prefer-lowest, prefer-stable]
 
         name: P${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
