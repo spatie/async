@@ -64,8 +64,10 @@ trait ProcessCallbacks
 
             call_user_func_array($callback, [$exception]);
 
-            break;
+            return;
         }
+
+        throw $exception;
     }
 
     abstract protected function resolveErrorOutput(): Throwable;

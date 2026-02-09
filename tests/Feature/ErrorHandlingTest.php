@@ -185,6 +185,37 @@ it('throws deep syntax errors', function () {
     expect($caughtError)->toBeInstanceOf(ParseError::class);
 });
 
+it('preserves exception type when stderr contains noise', function () {
+    $pool = Pool::create();
+
+    $caughtException = null;
+
+    $pool->add(childTask(function () {
+        trigger_error('some deprecation notice', E_USER_WARNING);
+
+        throw new MyException('test');
+    }))->catch(function (MyException $e) use (&$caughtException) {
+        $caughtException = $e;
+    });
+
+    $pool->wait();
+
+    expect($caughtException)->toBeInstanceOf(MyException::class);
+    expect($caughtException->getMessage())->toContain('test');
+});
+
+it('throws exception when no catch handler matches', function () {
+    $pool = Pool::create();
+
+    $pool->add(childTask(function () {
+        throw new MyException('test');
+    }))->catch(function (OtherException $e) {
+        // This handler should not match
+    });
+
+    $pool->wait();
+})->throws(MyException::class);
+
 it('can handle synchronous exception', function () {
     Pool::$forceSynchronous = true;
 
