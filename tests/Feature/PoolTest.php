@@ -336,7 +336,9 @@ it('does memory footprint controllable by clearing results', function () {
     $cntTasks = 30;
 
     foreach (range(1, $cntTasks) as $i) {
-        $pool->add(childTask(function () { return 1; }));
+        $pool->add(childTask(function () {
+            return 1;
+        }));
     }
 
     $pool->wait();
