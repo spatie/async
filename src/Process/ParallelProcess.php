@@ -87,6 +87,13 @@ class ParallelProcess implements Runnable
         if (! $this->errorOutput) {
             $processOutput = $this->process->getErrorOutput();
 
+            $marker = '___SPATIE_ASYNC_CHILD___';
+            $markerPosition = strrpos($processOutput, $marker);
+
+            if ($markerPosition !== false) {
+                $processOutput = substr($processOutput, $markerPosition + strlen($marker));
+            }
+
             $childResult = @unserialize(base64_decode($processOutput));
 
             if ($childResult === false || ! array_key_exists('output', $childResult)) {

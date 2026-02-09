@@ -51,7 +51,7 @@ try {
 
     $output = new \Spatie\Async\Output\SerializableException($exception);
 
-    fwrite(STDERR, base64_encode(serialize(['output' => $output])));
+    fwrite(STDERR, '___SPATIE_ASYNC_CHILD___'.base64_encode(serialize(['output' => $output])));
 
     exit(1);
 }
