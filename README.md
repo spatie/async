@@ -9,7 +9,7 @@
 <h1>Asynchronous and parallel PHP</h1>
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/async.svg?style=flat-square)](https://packagist.org/packages/spatie/async)
-![Tests Status](https://img.shields.io/github/actions/workflow/status/spatie/async/run-tests.yml)
+![Tests Status](https://github.com/spatie/async/actions/workflows/run-tests.yml/badge.svg)
 [![Quality Score](https://img.shields.io/scrutinizer/g/spatie/async.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/async)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/async.svg?style=flat-square)](https://packagist.org/packages/spatie/async)
     
